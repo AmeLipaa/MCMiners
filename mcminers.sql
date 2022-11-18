@@ -1,15 +1,15 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 4.9.7
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Czas generowania: 17 Lis 2022, 08:55
--- Wersja serwera: 10.4.24-MariaDB
--- Wersja PHP: 8.1.6
+-- Czas generowania: 19 Lis 2022, 00:14
+-- Wersja serwera: 8.0.30
+-- Wersja PHP: 7.3.32
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
 START TRANSACTION;
-SET time_zone = "+00:00";
+SET time_zone = "CET";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -17,9 +17,6 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- Baza danych: `sklep`
---
 
 -- --------------------------------------------------------
 
@@ -28,10 +25,9 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `kategorie_prod` (
-  `id_kategorii` int(16) UNSIGNED NOT NULL,
-  `nazwa` varchar(64) NOT NULL,
-  `opis` varchar(64) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `id_kategorii` int UNSIGNED NOT NULL,
+  `nazwa` varchar(64) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -40,12 +36,12 @@ CREATE TABLE `kategorie_prod` (
 --
 
 CREATE TABLE `klienci` (
-  `id_klienta` int(16) UNSIGNED NOT NULL,
+  `id_klienta` int UNSIGNED NOT NULL,
   `nick` varchar(48) NOT NULL,
   `email` varchar(64) NOT NULL,
   `haslo` varchar(256) NOT NULL,
   `admin` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -54,14 +50,14 @@ CREATE TABLE `klienci` (
 --
 
 CREATE TABLE `produkty` (
-  `id_produktu` int(16) UNSIGNED NOT NULL,
+  `id_produktu` int UNSIGNED NOT NULL,
   `nazwa` varchar(64) NOT NULL,
   `cena` double NOT NULL,
-  `opis` varchar(64) NOT NULL,
-  `dostepnosc` tinyint(1) NOT NULL COMMENT 'link do obrazu produktu',
-  `obraz` varchar(64) DEFAULT NULL,
-  `id_kategorii` int(16) UNSIGNED DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `opis` tinytext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `dostepnosc` tinyint(1) NOT NULL,
+  `obraz` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT 'link do obrazu',
+  `id_kategorii` int UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -70,12 +66,12 @@ CREATE TABLE `produkty` (
 --
 
 CREATE TABLE `szczegoly_transakcji` (
-  `id_szczegolow` int(16) UNSIGNED NOT NULL,
-  `id_transakcji` int(16) UNSIGNED NOT NULL,
-  `id_produktu` int(16) UNSIGNED NOT NULL,
-  `ilosc` int(11) NOT NULL,
+  `id_szczegolow` int UNSIGNED NOT NULL,
+  `id_transakcji` int UNSIGNED NOT NULL,
+  `id_produktu` int UNSIGNED NOT NULL,
+  `ilosc` int NOT NULL,
   `cena` double NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -84,12 +80,12 @@ CREATE TABLE `szczegoly_transakcji` (
 --
 
 CREATE TABLE `transakcja` (
-  `id_transakcji` int(16) UNSIGNED NOT NULL,
-  `id_klienta` int(16) UNSIGNED NOT NULL,
-  `id_szczegolow` int(16) UNSIGNED NOT NULL,
+  `id_transakcji` int UNSIGNED NOT NULL,
+  `id_klienta` int UNSIGNED NOT NULL,
+  `id_szczegolow` int UNSIGNED NOT NULL,
   `data` date NOT NULL,
   `realizacja` tinyint(1) NOT NULL COMMENT 'czy zrealizowane'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -98,12 +94,12 @@ CREATE TABLE `transakcja` (
 --
 
 CREATE TABLE `wpisy` (
-  `id_wpisu` int(11) UNSIGNED NOT NULL,
-  `id_klienta` int(11) UNSIGNED NOT NULL,
-  `tytul` varchar(64) NOT NULL,
+  `id_wpisu` int UNSIGNED NOT NULL,
+  `id_klienta` int UNSIGNED NOT NULL,
+  `tytul` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `tresc` text NOT NULL,
   `data` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Indeksy dla zrzutów tabel
@@ -159,37 +155,37 @@ ALTER TABLE `wpisy`
 -- AUTO_INCREMENT dla tabeli `kategorie_prod`
 --
 ALTER TABLE `kategorie_prod`
-  MODIFY `id_kategorii` int(16) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_kategorii` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT dla tabeli `klienci`
 --
 ALTER TABLE `klienci`
-  MODIFY `id_klienta` int(16) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_klienta` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT dla tabeli `produkty`
 --
 ALTER TABLE `produkty`
-  MODIFY `id_produktu` int(16) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_produktu` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT dla tabeli `szczegoly_transakcji`
 --
 ALTER TABLE `szczegoly_transakcji`
-  MODIFY `id_szczegolow` int(16) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_szczegolow` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT dla tabeli `transakcja`
 --
 ALTER TABLE `transakcja`
-  MODIFY `id_transakcji` int(16) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_transakcji` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT dla tabeli `wpisy`
 --
 ALTER TABLE `wpisy`
-  MODIFY `id_wpisu` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_wpisu` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- Ograniczenia dla zrzutów tabel
