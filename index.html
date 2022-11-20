@@ -218,19 +218,31 @@
       <h1 class="text-center kategoria" id="aktualnosci">
         Aktualności
       </h1>
+      <h3 style="margin-left:50px;margin-right:50px;padding:20px;"> Najnowsza aktualność: </h3>
+ 
       <div style="background-color: rgba(255, 255, 255, 0.2);margin-left:50px;margin-right:50px;padding:20px;">
-        <p>
-        Data i godzina wpisu
-        </p>
-        <h2 style="text-decoration:underline;">
-          Tytuł wpisu
-        </h2>
-        <p style="font-size:20px;">
-          Troche prawdy jest ale zobacz patrząc na to z perspektywy że chcesz raz tylko zrobic wyjątek bo chcesz sobie sport porobić to lepsze to niż jakby ci sie nie chciało albo jakbyśmy poszli robić coś nie zdrowego albo coś
-        </p>
+      
+        <?php
+        require("bd-authorize.php"); //Autoryzacja dostępu do bazy danych
+
+        $pdo = new PDO('mysql:host=localhost;dbname=sklep;charset=utf8', 'root', ''); //to jest do zmiany przy wrzucaniu na hosting
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $stmt = $pdo->query('SELECT `data`, `tytul`, `tresc`, `nick` FROM `wpisy` inner join klienci on wpisy.id_klienta = klienci.id_klienta order by id_wpisu DESC limit 1;');
+            foreach ($stmt as $row) {
+
+              echo "<p>".$row['data']."</p>";
+              echo "<p>".$row['nick']."</p>";
+              echo "<h2>".$row['tytul']."</h2>";
+              echo "<p>".$row['tresc']."</p>";
+              
+          }
+          $stmt->closeCursor();
+        ?>
         <p>
           <a class="btn btn-outline-primary" href="#">Wszystkie aktualności</a>
         </p>
+        </div>
       </div>
     </div>
   </div>
