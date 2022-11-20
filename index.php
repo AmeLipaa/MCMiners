@@ -223,9 +223,9 @@
       <div style="background-color: rgba(255, 255, 255, 0.2);margin-left:50px;margin-right:50px;padding:20px;">
       
         <?php
-        require("bd-authorize.php"); //Autoryzacja dostępu do bazy danych
+        require("backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
 
-        $pdo = new PDO('mysql:host=localhost;dbname=sklep;charset=utf8', 'root', ''); //to jest do zmiany przy wrzucaniu na hosting
+        $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
             $stmt = $pdo->query('SELECT `data`, `tytul`, `tresc`, `nick` FROM `wpisy` inner join klienci on wpisy.id_klienta = klienci.id_klienta order by id_wpisu DESC limit 1;');
