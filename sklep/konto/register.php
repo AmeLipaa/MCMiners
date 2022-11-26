@@ -6,7 +6,7 @@ require("../../backrooms/bd-authorize.php");
 
 function Check(){
     if(isset($_SESSION['user'])) {
-        header('location:index.php');
+        header('location:profil.php');
     }
 }
 
@@ -76,6 +76,14 @@ Check();
         footer{
             text-align:center;
             color:white;
+            margin-top: auto;
+        }
+        .btn:focus{
+            box-shadow: 0 0 0 .25rem rgba(0, 179, 89,.5) !important;
+        }
+        .btn-primary:active{
+            background-color: #00b359;
+            border-color: #00FF7F;
         }
         .btn-primary{
             background-color:#00FF7F;
@@ -87,17 +95,26 @@ Check();
             color:black;
             border: none;
         }
+        .btn-primary:focus{
+            background-color:#00b359;
+        }
         .btn-secondary{
             background-color:#444;
             color:white;
             border: none;
+            text-align: center;
+            margin: 0px auto 50px auto;
+            display: block;
         }
         .alert{
             margin-bottom: 0 !important;
         }
         form{
             text-align: center;
-            margin: 50px;
+            margin: 50px 50px 10px 50px;
+        }
+        a{
+            text-decoration: none !important;
         }
         .animlogo {
             display: block;
@@ -272,19 +289,14 @@ if (isset($_POST["signup"])) {
     <div class="row justify-content-center">
         <div class="col-12" style="background: linear-gradient(180deg, rgba(0,0,0,0.5046219171262255) 0%, rgba(0,0,0,0.5) 90%, rgba(0,0,0,0) 100%);">
             <img src="../../resources/logo.png" class="animlogo">
-
             <form method="post">
-                <div class="row justify-content-center">
-                    <div class="col" id="pole">
-                        <input class="mb-2" type="text" name="nick" maxlength="48" placeholder="Nick w grze" required><br>
-                        <input class="mb-2" type="email" name="email" maxlength="75" placeholder="E-mail" required><br>
-                        <input class="mb-2" type="password" name="pwd" maxlength="30" minlength="6" placeholder="Hasło" required><br>
-                        <input class="mb-2" type="password" name="pwd2" maxlength="30" minlength="6" placeholder="Powtórz hasło" required><br>
-                        <button class="btn btn-primary" type="submit" name="signup">Zarejestruj się</button>
-                    </div>
-                </div>
+                <input class="mb-2" type="text" name="nick" maxlength="48" placeholder="Nick w grze" required><br>
+                <input class="mb-2" type="email" name="email" maxlength="75" placeholder="E-mail" required><br>
+                <input class="mb-2" type="password" name="pwd" maxlength="30" minlength="6" placeholder="Hasło" required><br>
+                <input class="mb-2" type="password" name="pwd2" maxlength="30" minlength="6" placeholder="Powtórz hasło" required><br>
+                <button class="btn btn-primary" type="submit" name="signup">Zarejestruj się</button>
             </form>
-
+            <a href="."><button class="btn btn-secondary">Mam już konto</button></a>
         </div>
     </div>
 
