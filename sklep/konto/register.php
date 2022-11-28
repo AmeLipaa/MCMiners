@@ -115,6 +115,7 @@ Check();
         }
         a{
             text-decoration: none !important;
+			
         }
         .animlogo {
             display: block;
@@ -296,9 +297,11 @@ if (isset($_POST["signup"])) {
                 <input class="mb-2" type="password" name="pwd2" maxlength="30" minlength="6" placeholder="Powtórz hasło" required><br>
                 <button class="btn btn-primary" type="submit" name="signup">Zarejestruj się</button>
             </form>
-            <a href="."><button class="btn btn-secondary">Mam już konto</button></a>
+            <a href="." class="btn btn-secondary" style="width:10%;margin: 0px auto; padding-right:10px;" data-bs-target="_self">Mam już konto</a>
         </div>
     </div>
+	<br>
+	<br>
 
     <footer>Wdrożenie - AM 2022</footer>
 </div>
