@@ -35,7 +35,7 @@ try{
         } else {
             $dostepnosc = 0;
         }
-        $id_kategorii = $_POST['id_kategorii'];
+        $kategoria = $_POST['kategoria'];
         if(!empty($nazwa) && !empty($cena) && !empty($opis)){
             $stmt = $pdo->exec('INSERT INTO produkty (`nazwa`, `cena`, `opis`, `dostepnosc`) VALUES ( "'.$nazwa.'","'.$cena.'","'.$opis.'",'.$dostepnosc.')');
         }
@@ -369,17 +369,15 @@ try{
                         <label>Wybierz kategorię:</label>
                         <?php
                             $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
-                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION, PDO::FETCH_ASSOC);
-                            $stmt = $pdo->query('SELECT * FROM kategorie_prod;');
-                            $resultCheck = rowCount($stmt);
-
-                            if ($resultCheck > 0) {
+                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                            $stmt = $pdo->query('SELECT nazwa as nazwa_k FROM kategorie_prod;');
                                 echo "<select>";
-                                while ($row = fetch($stmt)) {
-                                    echo "<option value='".$row['nazwa']."'>".$row['nazwa']."</option>";
+                                foreach ($stmt as $row) {
+                                    echo "<option value='".$row['nazwa_k']."'>".$row['nazwa_k']."</option>";
                                 }
+                           
                                 echo "</select>";
-                            }
+                            
                             ?>
                     </div>
                     <div class="modal-footer">
@@ -468,6 +466,8 @@ try{
     var addbutton2 = document.getElementById("confirmAddNew2");
     var editbutton2 = document.getElementById("confirmEdit2");
     var deletebutton2 = document.getElementById("confirmRemove2");
+    var Kategoria1 = document.getElementById("userFormNazwa1");
+    var Kategoria2 = document.getElementById("userFormNazwa1");
     function addingMode1(){
         title1.innerText = "Dodawanie produktu";
         addbutton1.style.display = "block";
@@ -478,6 +478,7 @@ try{
         Nazwa1.value = "";
         Cena.value = "";
         Opis1.value = "";
+        Kategoria1.value = "";
         Dostepnosc.checked = true;
     }
     function addingMode2(){
