@@ -1,7 +1,7 @@
 <?php
 $mysql_host = 'localhost';
 $port = '3306';
-$username = 'username';
-$password = 'password';
+$username = 'root';
+$password = '';
 $database = 'mcminers';
 ?>

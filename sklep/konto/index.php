@@ -6,7 +6,13 @@ require("../../backrooms/bd-authorize.php"); //autoryzacja dostępu do bazy dany
 
 function Check(){
     if(isset($_SESSION['user'])) {
-        header('location:panel.php');
+		if ($_SESSION['user']==1 || $_SESSION['user']==3 || $_SESSION['user']==6)
+		{
+			header('location: ../../backrooms/panel.php');
+		}
+		else {
+			header('location: ../../backrooms/panel-users.php');
+		}
     }
 }
 
@@ -188,7 +194,6 @@ Check();
 if (isset($_POST["login"])) {
     $email = $_POST['email'];
     $pwd = $_POST['pwd'];
-	
 
     try{
         $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -196,33 +201,34 @@ if (isset($_POST["login"])) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $stmt = $pdo->query('SELECT * FROM klienci');
         foreach ($stmt as $row) {
-            if($email == $row['email'] || $email == $row['nick']){
+            if($email == $row['email']){
                 $checkpwd = hash('whirlpool',$pwd);
                 if($checkpwd == $row['haslo']){
-                    if($row['admin'] == 1){
+                   
                         $_SESSION['user'] = $row['id_klienta'];
-                    }
+                    
                 }
-				else{
+					else{
 					echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				<strong>Niepoprawne hasło.</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
-				}
-            }
-			
-		
-				else{
+					<strong>Niepoprawne hasło.</strong>
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+					</div>';
+					}
 				
-					echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				<strong>Nie ma takiego użytkownika. Sprawdź wpisane dane lub załóż konto.</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
-				}
-			
-			
 			}
+
 			
+			//else if ($email != $row['email']){
+				
+			//		echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			//	<strong>Nie ma takiego użytkownika. Sprawdź wpisane dane lub załóż konto.</strong>
+			//	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			//	</div>';
+			//	}
+				
+				
+	
+		}
         $stmt->closeCursor();
         Check();
     } catch(PDOException $e) {
@@ -253,7 +259,7 @@ if (isset($_POST["login"])) {
         <div class="col-12" style="background: linear-gradient(180deg, rgba(0,0,0,0.5046219171262255) 0%, rgba(0,0,0,0.5) 90%, rgba(0,0,0,0) 100%);">
             <img src="../../resources/logo.png" class="animlogo">
             <form method="post">
-                <input class="mb-2" type="email" name="email" placeholder="E-mail lub nick" required><br>
+                <input class="mb-2" type="text" name="email" placeholder="E-mail lub nick" required><br>
                 <input class="mb-2" type="password" name="pwd" placeholder="Hasło" required><br>
 				<!--<input type="checkbox" id="zapamietaj" name="zapamietaj" value="zapamietaj" checked="true">Zapamiętaj mnie<br>-->
                 <button class="btn btn-primary" type="submit" name="login">Zaloguj</button>
