@@ -11,7 +11,7 @@ function Check(){
 			header('location: ../../backrooms/panel.php');
 		}
 		else {
-			header('location: ../../backrooms/panel-users.php');
+			header('location: panel.php');
 		}
     }
 }
@@ -194,6 +194,7 @@ Check();
 if (isset($_POST["login"])) {
     $email = $_POST['email'];
     $pwd = $_POST['pwd'];
+	$kontrolka=0;
 
     try{
         $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -201,7 +202,7 @@ if (isset($_POST["login"])) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $stmt = $pdo->query('SELECT * FROM klienci');
         foreach ($stmt as $row) {
-            if($email == $row['email']){
+            if($email == $row['email'] || $email == $row['nick']){
                 $checkpwd = hash('whirlpool',$pwd);
                 if($checkpwd == $row['haslo']){
                    
@@ -218,17 +219,20 @@ if (isset($_POST["login"])) {
 			}
 
 			
-			//else if ($email != $row['email']){
-				
-			//		echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-			//	<strong>Nie ma takiego użytkownika. Sprawdź wpisane dane lub załóż konto.</strong>
-			//	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-			//	</div>';
-			//	}
-				
-				
-	
+			else if ($email != $row['email'] && $email != $row['nick']){
+				$kontrolka++;
+				}
+
 		}
+		
+		if ($kontrolka>0){
+			echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+				<strong>Nie ma takiego użytkownika. Sprawdź wpisane dane lub załóż konto.</strong>
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>';
+		}
+		
+		
         $stmt->closeCursor();
         Check();
     } catch(PDOException $e) {

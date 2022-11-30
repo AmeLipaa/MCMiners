@@ -1,5 +1,10 @@
 <?php
 session_start();
+if(isset($_POST['zamknij'])){
+    session_unset();
+    session_destroy();
+    header('location:../index.html');
+}
 ob_start();
 
 require("../../backrooms/bd-authorize.php");
@@ -256,7 +261,9 @@ if (isset($_POST["signup"])) {
 					<div>
 							Witaj na pokładzie, '.$nick.'!
 					</div>
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=window.location.href; return false;"></button>
+					<form method="post">
+					<button type="submit" class="btn-close" data-bs-dismiss="alert" aria-label="Close" name="zamknij"></button>
+					</form>
 					</div>';
             $stmta->closeCursor();
         }
@@ -313,6 +320,9 @@ if (isset($_POST["signup"])) {
             document.location.reload(true);
         })
     }
+	
+	}
+	
 </script>
 <script src="../../resources/scroll.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
