@@ -207,8 +207,32 @@ if (isset($_POST["login"])) {
                 if($checkpwd == $row['haslo']){
                    
                         $_SESSION['user'] = $row['id_klienta'];
+						
+						if (isset($_POST["zapamietaj"])) {
+						
+							if (!empty($_POST["zapamietaj"]))
+							{ $current_time = time();
+						setcookie("user_login", $email, $current_time +(10 * 365 * 24 * 60 * 60));
+						setcookie("user_password", $pwd, $current_time +(10 * 365 * 24 * 60 * 60));
+						$_SESSION["name"] = $name;
+						}
+						else
+						{
+							if (isset($_COOKIE["user_login"]))
+							{
+								setcookie("user_login", "");
+							}
+								if (isset($_COOKIE["user_password"]))
+								{
+									setcookie("user_password", "");
+								}
+						}
+									header("location:index.php");
+						}
+				}
+						
                     
-                }
+                
 					else{
 					echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
 					<strong>Niepoprawne hasło.</strong>
@@ -265,7 +289,7 @@ if (isset($_POST["login"])) {
             <form method="post">
                 <input class="mb-2" type="text" name="email" placeholder="E-mail lub nick" required><br>
                 <input class="mb-2" type="password" name="pwd" placeholder="Hasło" required><br>
-				<!--<input type="checkbox" id="zapamietaj" name="zapamietaj" value="zapamietaj" checked="true">Zapamiętaj mnie<br>-->
+				<input type="checkbox" id="zapamietaj" name="zapamietaj" value="zapamietaj" checked="true">Zapamiętaj mnie<br>
                 <button class="btn btn-primary" type="submit" name="login">Zaloguj</button>
             </form>
 			 <a href="register.php" class="btn btn-secondary" style="width:10%;margin: 0px auto; padding-right:10px;" data-bs-target="_self">Nie mam konta</a>
