@@ -6,6 +6,11 @@ if(isset($_POST['logout'])){
     header('location:./index.php');
 }
 require("../../backrooms/bd-authorize.php");
+
+if (empty($_SESSION['user'])){
+	 header('location:./index.php');
+}
+
 if(isset($_POST['edit'])){
     $userid = $_POST['ID'];
     $nick = $_POST['nick'];
