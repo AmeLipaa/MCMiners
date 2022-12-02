@@ -268,35 +268,74 @@
         <h1 class="text-center kategoria" id="sklep">
             Wesprzyj serwer kupując w naszym sklepie
         </h1>
-        <div class="row">
+		<?php
+		require("./backrooms/bd-authorize.php"); 
+		
+		 try{
+            $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			
+            $stmta = $pdo->query('SELECT * FROM produkty WHERE id_produktu=1;');
+			$stmtb = $pdo->query('SELECT * FROM produkty WHERE id_produktu=2;');
+			//$stmtc = $pdo->query('SELECT * FROM produkty WHERE id_produktu=3;'); //trzeba to odkomentowac gdy bedzie 3 produkt
+           
+               
+      
+		
+		echo'
+        <div class="row">';
+		
+		 foreach ($stmta as $row) {
+			 echo'
             <div class="col-md-4 d-flex justify-content-center" style="margin-top: 25px;">
                 <div class="card" style="width:400px;height:500px;">
-                    <img class="card-img-top" src="./resources/vip.png" alt="Card image">
+                    <img class="card-img-top" src="'.$row['obraz'].'" style="background-image: url("/resources/card.png");" alt="Card image">
                     <div class="card-body">
-                        <h3 class="card-title" style="color:black;">Ranga VIP</h3>
-                        <p class="card-text" style="color:black;font-size:22px;">3.99zł/miesiąc</p>
+                        <h3 class="card-title" style="color:black;">'.$row['nazwa'].'</h3>
+                        <p class="card-text" style="color:black;font-size:22px;">'.$row['cena'].'</p>
                     </div>
                 </div>
-            </div>
+            </div>';
+		 }
+			
+			 foreach ($stmtb as $row) {
+			 echo'
             <div class="col-md-4 d-flex justify-content-center" style="margin-top: 25px;">
                 <div class="card" style="width:400px;height:500px;">
-                    <img class="card-img-top" src="./resources/wedit.png" alt="Card image">
+                    <img class="card-img-top" src="'.$row['obraz'].'" style="background: url("/resources/card.png");" alt="Card image">
                     <div class="card-body">
-                        <h3 class="card-title" style="color:black;">WorldEdit na Creative</h3>
-                        <p class="card-text" style="color:black;font-size:22px;">0.99zł/miesiąc</p>
+                        <h3 class="card-title" style="color:black;">'.$row['nazwa'].'</h3>
+                        <p class="card-text" style="color:black;font-size:22px;">'.$row['cena'].'</p>
                     </div>
                 </div>
-            </div>
+            </div>';
+		 }
+			//tu trzeba skopiowac powyzsze jako stmtc
+			echo'
             <div class="col-md-4 d-flex justify-content-center" style="margin-top: 25px;">
                 <div class="card" style="width:400px;height:500px;">
-                    <img class="card-img-top" src="./resources/unban.png" alt="Card image">
+                    <img class="card-img-top" src="./resources/card.png" alt="Card image">
                     <div class="card-body">
                         <h3 class="card-title" style="color:black;">Unban</h3>
                         <p class="card-text" style="color:black;font-size:22px;">35.00zł/jednorazowo</p>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>';
+		
+		      
+            $stmta->closeCursor();
+			$stmtb->closeCursor();
+			//$stmtc->closeCursor();  /odkomentowac gdy bedzie 3 produkt
+			
+        } catch(PDOException $e) {
+            echo '😵';
+        }
+		
+		?>
+		
+		
         <div style="padding:40px;">
             <a class="btn btn-outline-primary text-center" style="min-width:35%;max-width:635px;margin: 0px auto;font-size:22px;" href="./sklep">Zobacz pełną ofertę</a>
         </div>
