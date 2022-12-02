@@ -88,7 +88,7 @@
     </style>
 
 </head>
-<body data-bs-spy="scroll" data-bs-target="#navigacja">
+<body data-bs-spy="scroll" data-bs-target="#navigacja" id="body">
 
 
 
@@ -329,30 +329,36 @@
 </div>
 
 
-<div class="fixed-bottom">
-<form method="post">
-<div class="alert alert-primary d-flex align-items-center" role="alert" id="alert">
+
+<div class="fixed-bottom" id="alert">
+<div class="alert alert-primary d-flex align-items-center" role="alert" >
 <img src="/resources/cookie.png" style="width:60px;height:60px; padding:10px;">
   <div>
     <p><strong>Ta strona używa ciasteczek. Korzystając ze strony wyrażasz zgodę na warunki naszej polityki prywatności.</strong><br>Zapoznaj się z naszą <a href="polityka.html">polityką prywatności.</a></p>
   </div>
   <br>
-  <button type="button" class="btn btn-outline-primary text-center" id="accept">Rozumiem</button>
+  <button type="button" class="btn btn-outline-primary text-center" id="accept" onclick="aaa();">Rozumiem</button>
  <a class="btn btn-outline-primary text-center" href="bluescreen.html">Nie wyrażam zgody</a>
 </div>
-</form>
 </div>
+
+
 
 <script>
 var alert=document.getElementById("alert");
-body.onload=function(){
-	
-	alert.style.display = "block";
-}
 var accept=document.getElementById("accept");
-accept.onclick=function(){
+var body=document.getElementById("body");
+function aaa(){
 	alert.style.display = "none";
+	
 }
+document.addEventListener("DOMContentLoaded", function(event) {
+  alert.style.display = "block";
+
+});
+	
+	
+
 </script>
 <script src="./resources/scroll.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
