@@ -1,4 +1,5 @@
 <?php
+session_start();
 require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
 ?>
 <!DOCTYPE html>
@@ -181,20 +182,38 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
 
     <div class="row">
         <div class="col-md-12 text-center" style="background: no-repeat fixed center url('../resources/background4.png');">
-            <div style="background-color: rgba(0, 0, 0, 0.6);">
-                <h1 class="text-center kategoria">
-                    Zaloguj się lub stwórz konto<br>
-                    <div class="row" style="margin-top: 50px;">
-                        <div class="col-4 d-sm-none d-sm-none d-md-block"></div>
-                        <div class="col-12 col-md-2">
-                            <a href="./konto/index.php" class="btn btn-primary text-center w-100" data-bs-target="_self">Zaloguj</a>
+            <div style="background-color: rgba(0, 0, 0, 0.6);padding-bottom: 25px;margin-bottom: 25px;margin-top: 25px">
+                <?php
+                if(!isset($_SESSION['user'])){
+                    echo '
+                    <h1 class="text-center kategoria">
+                        Zaloguj się lub stwórz konto<br>
+                        <div class="row" style="margin-top: 50px;">
+                            <div class="col-4 d-sm-none d-sm-none d-md-block"></div>
+                            <div class="col-12 col-md-2">
+                                <a href="./konto/index.php" class="btn btn-primary text-center w-100" data-bs-target="_self">Zaloguj</a>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <a href="./konto/register.php" class="btn btn-primary text-center w-100" data-bs-target="_self">Utwórz konto</a>
+                            </div>
+                            <div class="col-4 d-sm-none d-sm-none d-md-block"></div>
                         </div>
-                        <div class="col-12 col-md-2">
-                            <a href="./konto/register.php" class="btn btn-primary text-center w-100" data-bs-target="_self">Utwórz konto</a>
-                        </div>
-                        <div class="col-4 d-sm-none d-sm-none d-md-block"></div>
-                    </div>
-                </h1>
+                    </h1>';
+                } else {
+                    include('../backrooms/welcome.php');
+                        echo '
+                        <div class="row" style="margin-top: 25px;">
+                            <div class="col-4 d-sm-none d-sm-none d-md-block"></div>
+                            <div class="col-12 col-md-2">
+                                <a href="./konto/panel.php" class="btn btn-primary text-center w-100" data-bs-target="_self">Profil</a>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <a href="./konto/koszyk.php" class="btn btn-primary text-center w-100" data-bs-target="_self">Koszyk</a>
+                            </div>
+                            <div class="col-4 d-sm-none d-sm-none d-md-block"></div>
+                        </div>';
+                }
+                ?>
             </div>
 
             <h1 class="text-center kategoria" id="sklep" style="background-color: rgba(0, 0, 0, 0.6);">
