@@ -234,10 +234,12 @@
                     echo "<h2 style='text-decoration:underline;'>".$row['tytul']."</h2>";
                     if (strlen($row['tresc']) > 450)
                     {
+                        $str = 0;
                         $shorttext = substr($row['tresc'],0,450);
                         $pos = strrpos($shorttext, ' ');
-                        if ($pos !== false && $pos > 200)
+                        if ($pos !== false && $pos > 200){
                             $str = substr($str,0,$pos);
+                        }
                         $shorttext .= '...';
                         echo "<p style='font-size:20px;' class='d-md-block d-none'>".$row['tresc']."</p>";
                         echo "<p style='font-size:20px;' class='d-md-none d-block'>".$shorttext."</p>";
