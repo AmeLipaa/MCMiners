@@ -1,18 +1,21 @@
 <?php
-
 session_start();
 ob_start();
+
+require("../../backrooms/bd-authorize.php"); //autoryzacja dostępu do bazy danych
 
 function Check(){
     if(isset($_SESSION['user'])) {
         header('location:panel.php');
     }
 }
+function aMozeDoSklepu(){
+    if(isset($_SESSION['user'])) {
+        header('location:..');
+    }
+}
 
 Check();
-
-require("../../backrooms/bd-authorize.php");
-
 ?>
 <!DOCTYPE html>
 <html lang="pl">
@@ -93,10 +96,17 @@ require("../../backrooms/bd-authorize.php");
             background-color:#444;
             color:white;
             border: none;
+            text-align: center;
+            margin: 0px auto 50px auto;
+            display: block;
+            width: 150px;
         }
         form{
             text-align: center;
-            margin: 50px;
+            margin: 50px 50px 10px 50px;
+        }
+        a{
+            text-decoration: none !important;
         }
         .animlogo {
             display: block;
@@ -181,11 +191,9 @@ require("../../backrooms/bd-authorize.php");
 </head>
 <body data-bs-spy="scroll" data-bs-target="#navigacja">
 <?php
-
 if (isset($_POST["login"])) {
     $email = $_POST['email'];
     $pwd = $_POST['pwd'];
-    require("bd-authorize.php"); //Autoryzacja dostępu do bazy danych
 
     try{
         $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -196,12 +204,33 @@ if (isset($_POST["login"])) {
             if($email == $row['email']){
                 $checkpwd = hash('whirlpool',$pwd);
                 if($checkpwd == $row['haslo']){
-                        $_SESSION['user'] = $row['id_klienta'];
+
+                    $_SESSION['user'] = $row['id_klienta'];
+
                 }
+                else{
+                    echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <strong>Niepoprawne hasło.</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>';
+                }
+
             }
+
+
+            //else if ($email != $row['email']){
+
+            //    echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+            //  <strong>Nie ma takiego użytkownika. Sprawdź wpisane dane lub załóż konto.</strong>
+            //  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            //  </div>';
+            //  }
+
+
+
         }
-        Check();
         $stmt->closeCursor();
+        aMozeDoSklepu();
     } catch(PDOException $e) {
         echo '😵';
     }
@@ -230,16 +259,20 @@ if (isset($_POST["login"])) {
         <div class="col-12" style="background: linear-gradient(180deg, rgba(0,0,0,0.5046219171262255) 0%, rgba(0,0,0,0.5) 90%, rgba(0,0,0,0) 100%);">
             <img src="../../resources/logo.png" class="animlogo">
             <form method="post">
-                <input class="mb-2" type="email" name="email" placeholder="E-mail" required><br>
+                <input class="mb-2" type="text" name="email" placeholder="E-mail lub nick" required><br>
                 <input class="mb-2" type="password" name="pwd" placeholder="Hasło" required><br>
+                <!--<input type="checkbox" id="zapamietaj" name="zapamietaj" value="zapamietaj" checked="true">Zapamiętaj mnie<br>-->
                 <button class="btn btn-primary" type="submit" name="login">Zaloguj</button>
             </form>
+            <a href="register.php" class="btn btn-secondary" data-bs-target="_self">Nie mam konta</a>
         </div>
     </div>
+    <br>
+    <br>
 
     <footer>Wdrożenie - AM 2022</footer>
 </div>
-<script src="../resources/scroll.js"></script>
+<script src="../../resources/scroll.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
 </body>

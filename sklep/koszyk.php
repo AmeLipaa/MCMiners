@@ -7,6 +7,7 @@ if(isset($_POST['logout'])){
     header('location:./index.php');
 }
 
+
 require("../backrooms/bd-authorize.php");
 
 $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -228,14 +229,41 @@ if(!isset($_SESSION['user'])){
         
     </div>
     <div class="separator"></div>
+    <div class="container-fluid">
     <h3> Koszyk </h3>
     <table>
         <th> Nazwa produktu </th>
         <th> Cena </th>
         <th> Ilość </th>
-
-    </table>
-
+        <?php 
+        try{
+            $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $ilosci=array();
+            $length = count($_SESSION['ilosci']);
+            $y =0;
+            foreach($_SESSION['ilosci'] as $i){
+                $y++;
+                $ilosci[$y]=$i;
+            }
+            $x =0;
+            foreach ($_SESSION['produkty'] as $key) {
+                $stmt = $pdo->query('SELECT nazwa,cena FROM produkty WHERE id_produktu LIKE "'.$key.'"');
+                echo "<tr>";
+                $x++;
+                foreach ($stmt as $row) {
+                    echo "<td>".$row['nazwa']."</td>";
+                    echo "<td>".$row['cena']."</td>";
+                    echo "<td>".$ilosci[$x]."</td>";
+                }
+                echo "</tr>";
+            }
+                
+        } catch(PDOException $e) {
+            echo '😵';
+        }
+?>
+</table>
 
 </div>
 <script src="../resources/scroll.js"></script>
