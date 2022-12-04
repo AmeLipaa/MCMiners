@@ -94,8 +94,10 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
         .card{
             border-width: 0px;
         }
-        .kategoria{
+        .kategoria, #faq{
             padding: 40px 0;
+        }
+        #faq{
             margin: 25px 0;
         }
         .navbar-dark .navbar-nav .nav-link{
@@ -151,6 +153,30 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
         .produkt{
             margin-bottom:75px;
         }
+        #search{
+            vertical-align: middle;
+        }
+        .search{
+            color: white;
+        }
+        .search:hover{
+            color: black;
+        }
+        .darkbg{
+            background-color: rgba(0, 0, 0, 0.6);
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+            margin-top: 25px;
+        }
+        .forminput {
+            border-radius: 3px;
+            border-color: gray;
+            border-style: solid;
+            border-width: 1px;
+            background-color: white;
+            height: 30px;
+            vertical-align: middle;
+        }
     </style>
 
 </head>
@@ -182,7 +208,7 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
 
     <div class="row">
         <div class="col-md-12 text-center" style="background: no-repeat fixed center url('../resources/background4.png');">
-            <div style="background-color: rgba(0, 0, 0, 0.6);padding-bottom: 25px;margin-bottom: 25px;margin-top: 25px">
+            <div class="darkbg">
                 <?php
                 if(!isset($_SESSION['user'])){
                     echo '
@@ -191,10 +217,10 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                         <div class="row" style="margin-top: 50px;">
                             <div class="col-4 d-sm-none d-sm-none d-md-block"></div>
                             <div class="col-12 col-md-2">
-                                <a href="./konto/index.php" class="btn btn-primary text-center w-100" data-bs-target="_self">Zaloguj</a>
+                                <a href="./konto/index.php" class="btn btn-primary text-center w-100 mt-1" data-bs-target="_self">Zaloguj</a>
                             </div>
                             <div class="col-12 col-md-2">
-                                <a href="./konto/register.php" class="btn btn-primary text-center w-100" data-bs-target="_self">Utwórz konto</a>
+                                <a href="./konto/register.php" class="btn btn-primary text-center w-100 mt-1" data-bs-target="_self">Utwórz konto</a>
                             </div>
                             <div class="col-4 d-sm-none d-sm-none d-md-block"></div>
                         </div>
@@ -205,10 +231,10 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                         <div class="row" style="margin-top: 25px;">
                             <div class="col-4 d-sm-none d-sm-none d-md-block"></div>
                             <div class="col-12 col-md-2">
-                                <a href="./konto/panel.php" class="btn btn-primary text-center w-100" data-bs-target="_self">Profil</a>
+                                <a href="./konto/panel.php" class="btn btn-primary text-center w-100 mt-1" data-bs-target="_self">Profil</a>
                             </div>
                             <div class="col-12 col-md-2">
-                                <a href="./konto/koszyk.php" class="btn btn-primary text-center w-100" data-bs-target="_self">Koszyk</a>
+                                <a href="./konto/koszyk.php" class="btn btn-primary text-center w-100 mt-1" data-bs-target="_self">Koszyk</a>
                             </div>
                             <div class="col-4 d-sm-none d-sm-none d-md-block"></div>
                         </div>';
@@ -216,24 +242,42 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                 ?>
             </div>
 
-            <h1 class="text-center kategoria" id="sklep" style="background-color: rgba(0, 0, 0, 0.6);">
-                Wesprzyj serwer kupując w naszym sklepie
-            </h1>
+            <div class="darkbg">
+                <h1 class="text-center kategoria" id="sklep">
+                    Wesprzyj serwer kupując w naszym sklepie
+                </h1>
+                <form method="post">
+                    <input maxlength="64" placeholder="Nazwa" name="which-product" id="search">
+                    <select name='sort' class="forminput">
+                        <option value='' selected='' disabled=''>Sortowanie</option>
+                        <option value=''>Domyślne</option>
+                        <option value=' ORDER BY cena'>Wg. ceny ↑</option>
+                        <option value=' ORDER BY cena DESC'>Wg. ceny ↓</option>
+                        <option value=' ORDER BY nazwa'>Wg. nazwy A-Z</option>
+                        <option value=' ORDER BY nazwa DESC'>Wg. nazwy Z-A</option>
+                    </select>
+                    <button class="btn btn-outline-primary search" type="submit" name="filter">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                        </svg>
+                        Szukaj
+                    </button>
+                </form>
+            </div>
             <div class="row">
             <?php
             try{
                 $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-                if (isset($_POST['search'])) {
+                if (isset($_POST['filter'])) {
                     $whichprod = $_POST['which-product'];
-                }
-
-                if(!empty($whichprod)){
-                    $stmt = $pdo->query('SELECT * FROM produkty WHERE nazwa LIKE "'.$whichprod.'%";');
+                    $sorting = $_POST['sort'];
+                    $stmt = $pdo->query('SELECT * FROM produkty WHERE nazwa LIKE "'.$whichprod.'%"'.$sorting.';');
                 } else {
                     $stmt = $pdo->query('SELECT * FROM produkty;');
                 }
+
                 foreach ($stmt as $row) {
                     echo '<div class="col-md-4 d-flex justify-content-center produkt">
                     <div class="card" style="width:400px;">
