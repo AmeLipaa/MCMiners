@@ -1,6 +1,10 @@
 <?php
-session_start();
 ob_start();
+
+if(isset($_SESSION['user'])){
+    header('location:panel.php');
+    echo $_SESSION['user'];
+}
 
 require("../../backrooms/bd-authorize.php");
 
@@ -244,7 +248,7 @@ if (isset($_POST["signup"])) {
         }
         else if($kontrolka==0){
             $checkpwd = hash('whirlpool',$pwd);
-            $stmta = $pdo->query('INSERT INTO klienci(nick,email,haslo,admin) VALUES ("'.$nick.'","'.$email.'","'.$checkpwd.'",0);');
+            $stmta = $pdo->query('INSERT INTO klienci( nick,email,haslo,admin) VALUES ("'.$nick.'","'.$email.'","'.$checkpwd.'",0);');
             echo '<div class="alert alert-success d-flex align-items-center" role="alert" id="jupi">
 					<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
 					<div>
@@ -254,9 +258,6 @@ if (isset($_POST["signup"])) {
 					</div>';
             $stmta->closeCursor();
         }
-
-
-        Check();
     } catch(PDOException $e) {
         echo '??';
     }
@@ -291,7 +292,7 @@ if (isset($_POST["signup"])) {
                 <input class="mb-2" type="password" name="pwd2" maxlength="30" minlength="6" placeholder="Powtórz hasło" required><br>
                 <button class="btn btn-primary" type="submit" name="signup">Zarejestruj się</button>
             </form>
-            <a href="." class="btn btn-secondary" style="width:10%;margin: 0px auto; padding-right:10px;" data-bs-target="_self">Mam już konto</a>
+            <a href="index.php" class="btn btn-secondary" style="width:10%;margin: 0px auto; padding-right:10px;" data-bs-target="_self">Mam już konto</a>
         </div>
     </div>
 	<br>
