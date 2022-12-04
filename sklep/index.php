@@ -237,11 +237,12 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                 foreach ($stmt as $row) {
                     echo '<div class="col-md-4 d-flex justify-content-center produkt">
                     <div class="card" style="width:400px;">
-                        <img class="card-img-top" src="'.$row['obraz'].'" alt="Card image">
+                        <img class="card-img-top produkt'.$row['id_produktu'].'" src="'.$row['obraz'].'" alt="Card image">
                         <div class="card-body">
-                            <h3 class="card-title">'.$row['nazwa'].'</h3>
-                            <p class="card-text" style="font-size:22px;"'.$row['cena'].'zł</p>
-                            <a class="btn btn-outline-primary text-center" style="width:50%;margin: 0px auto;font-size:18px;" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Wybierz</a>
+                            <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['nazwa'].'</h3>
+                            <p class="card-text produkt'.$row['id_produktu'].'" style="font-size:22px;">'.$row['cena'].' zł</p>
+                            <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['opis'].'">
+                            <a class="btn btn-outline-primary text-center" style="width:50%;margin: 0px auto;font-size:18px;" onclick="showProd('.$row['id_produktu'].')" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Wybierz</a>
                         </div>
                     </div>
                 </div>';
@@ -264,11 +265,18 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background-color:rgba(0, 255, 127, 0.75);"></button>
                 </div>
                 <div class="modal-body">
-                    ...
+                    <input type="hidden" value="" id="prodid" name="prodid">
+                    <div style="margin:auto;width:fit-content">
+                        <img src="" style="width:250px;height:250px;" id="modalimg">
+                    </div>
+                    <h4 id="modaltitle"></h4>
+                    <p id="modaldesc"></p>
+                    <h3 id="modalprice"></h3>
+                    <input class="mt-3 form-control" type="number" name="ilosc" id="prodilosc" min="1" max="100" value="1" onchange="updateCena()">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                    <button type="button" class="btn btn-primary">Gotowe</button>
+                    <button type="button" class="btn btn-primary">Dodaj do koszyka</button>
                 </div>
             </div>
         </div>
@@ -320,6 +328,31 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
     </div>
     <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
 </div>
+<script>
+    const formatter = new Intl.NumberFormat('pl-PL', {
+        style: 'currency',
+        currency: 'PLN',
+    });
+    var ogprice = 0;
+    var price = document.getElementById("modalprice");
+    var title = document.getElementById("modaltitle");
+    var desc = document.getElementById("modaldesc")
+    var img = document.getElementById("modalimg");
+    var prodid = document.getElementById("prodid");
+    var ilosc = document.getElementById("prodilosc");
+    function showProd(id){
+        img.src = document.getElementsByClassName("produkt"+id)[0].src;
+        title.innerHTML = document.getElementsByClassName("produkt"+id)[1].innerText;
+        price.innerText = document.getElementsByClassName("produkt"+id)[2].innerText;
+        desc.innerText = document.getElementsByClassName("produkt"+id)[3].value;
+        prodid.value = id;
+        ilosc.value = 1;
+        ogprice = Number(price.innerText.slice(0, -3));
+    }
+    function updateCena(){
+        price.innerText = formatter.format((ogprice * ilosc.value));
+    }
+</script>
 <script src="../resources/scroll.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
