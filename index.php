@@ -15,7 +15,7 @@
 
 
     <style>
-        body{
+        #body{
             background: repeat url("./resources/bg2.png");
             color: white;
             position: relative;
@@ -42,6 +42,9 @@
         .boxoutline{
             box-shadow: -1px -1px 10px #202020, 1px -1px 10px #202020, -1px 1px 10px #202020, 1px 1px 10px #202020;
         }
+        .card-img-top{
+            background-image: url("./resources/card.png");
+        }
         .separator{
             margin: 25px 0;
             background-color: white;
@@ -49,7 +52,7 @@
             height:2px;
         }
         .btn-outline-primary{
-            color:white;
+            color:black;
             border-color:#00FF7F;
             margin:5px;
             box-shadow:2px 2px 3px #000, inset 2px 2px 3px #000;
@@ -61,15 +64,39 @@
             background-color:#00FF7F;
             color: black;
         }
+        .btn:focus{
+            box-shadow: 0 0 0 .25rem rgba(0, 179, 89,.5) !important;
+        }
+        .btn:active{
+            background-color: #00b359;
+            border-color: #00FF7F;
+        }
+        .btn-primary{
+            background-color:#00FF7F;
+            color:black;
+            border: none;
+        }
+        .btn-primary:hover{
+            background-color:#00b359;
+            color:black;
+            border: none;
+        }
+        .btn-primary:focus{
+            background-color:#00b359;
+        }
         .card-title{
             font-family: 'Nunito', sans-serif;
         }
         .card{
             border-width: 0px;
         }
+        .card-img-top.produkt{
+            height: 333px;
+            width: 333px;
+        }
         .kategoria{
             padding: 40px 0;
-            margin-top: 25px;
+            margin: 25px 0;
         }
         .navbar-dark .navbar-nav .nav-link{
             font-family: 'Nunito', sans-serif;
@@ -85,10 +112,49 @@
         .scrolled-up{
             transform:translateY(0); transition: all 0.3s ease-in-out;
         }
+        .modal-header{
+            color: white;
+            background: repeat url("./resources/dirt.jpg");
+        }
+        .modal-body{
+            color: white;
+            background-color: #333;
+        }
+        .modal-footer{
+            background: repeat url("./resources/dirt.jpg");
+        }
+        .btn-primary{
+            background-color:#00FF7F;
+            color:black;
+            border: none;
+        }
+        .btn-primary:hover{
+            background-color:#00b359;
+            color:black;
+            border: none;
+        }
+        .btn-secondary{
+            background-color:#444;
+            color:white;
+            border: none;
+        }
+        .card-body{
+            color:black;
+        }
+        .faq{
+            background-color: rgba(255, 255, 255, 0.2);
+            margin-left:50px;
+            margin-right:50px;
+            margin-bottom:25px;
+            padding:20px;
+        }
+        .produkt{
+            margin-bottom:75px;
+        }
     </style>
 
 </head>
-<body data-bs-spy="scroll" data-bs-target="#navigacja">
+<body data-bs-spy="scroll" data-bs-target="#navigacja" id="body">
 
 <div class="container-fluid">
     <nav class="navbar autohide fixed-top navbar-dark navbar-expand-md justify-content-center">
@@ -220,7 +286,7 @@
 
             <div style="background-color: rgba(255, 255, 255, 0.2);margin-left:50px;margin-right:50px;padding:20px;">
 
-                <?php
+            <?php
                 require("backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
 
                 $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -263,35 +329,78 @@
         <h1 class="text-center kategoria" id="sklep">
             Wesprzyj serwer kupując w naszym sklepie
         </h1>
-        <div class="row">
-            <div class="col-md-4 d-flex justify-content-center" style="margin-top: 25px;">
-                <div class="card" style="width:400px;height:500px;">
-                    <img class="card-img-top" src="./resources/vip.png" alt="Card image">
-                    <div class="card-body">
-                        <h3 class="card-title" style="color:black;">Ranga VIP</h3>
-                        <p class="card-text" style="color:black;font-size:22px;">3.99zł/miesiąc</p>
-                    </div>
+		<?php
+		require("./backrooms/bd-authorize.php"); 
+		
+		 try{
+            $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			
+            $stmta = $pdo->query('SELECT * FROM produkty WHERE id_produktu=1;');
+			$stmtb = $pdo->query('SELECT * FROM produkty WHERE id_produktu=2;');
+			$stmtc = $pdo->query('SELECT * FROM produkty WHERE id_produktu=4;'); //trzeba to odkomentowac gdy bedzie 3 produkt
+           
+               
+      
+		
+		echo'
+        <div class="row">';
+		
+		 foreach ($stmta as $row) {
+            echo '<div class="col-md-4 d-flex justify-content-center produkt">
+            <div class="card" style="width:400px;">
+                <img class="card-img-top produkt'.$row['id_produktu'].'" src="'.$row['obraz'].'" alt="Card image">
+                <div class="card-body">
+                    <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['nazwa'].'</h3>
+                    <p class="card-text produkt'.$row['id_produktu'].'" style="font-size:22px;">'.$row['cena'].' zł</p>
+                    <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['opis'].'">
+                    <a class="btn btn-outline-primary text-center" style="width:50%;margin: 0px auto;font-size:18px;" onclick="showProd('.$row['id_produktu'].')" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Wybierz</a>
                 </div>
             </div>
-            <div class="col-md-4 d-flex justify-content-center" style="margin-top: 25px;">
-                <div class="card" style="width:400px;height:500px;">
-                    <img class="card-img-top" src="./resources/wedit.png" alt="Card image">
+        </div>';
+		 }
+			
+			 foreach ($stmtb as $row) {
+                echo '<div class="col-md-4 d-flex justify-content-center produkt">
+                <div class="card" style="width:400px;">
+                    <img class="card-img-top produkt'.$row['id_produktu'].'" src="'.$row['obraz'].'" alt="Card image">
                     <div class="card-body">
-                        <h3 class="card-title" style="color:black;">WorldEdit na Creative</h3>
-                        <p class="card-text" style="color:black;font-size:22px;">0.99zł/miesiąc</p>
+                        <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['nazwa'].'</h3>
+                        <p class="card-text produkt'.$row['id_produktu'].'" style="font-size:22px;">'.$row['cena'].' zł</p>
+                        <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['opis'].'">
+                        <a class="btn btn-outline-primary text-center" style="width:50%;margin: 0px auto;font-size:18px;" onclick="showProd('.$row['id_produktu'].')" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Wybierz</a>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 d-flex justify-content-center" style="margin-top: 25px;">
-                <div class="card" style="width:400px;height:500px;">
-                    <img class="card-img-top" src="./resources/unban.png" alt="Card image">
-                    <div class="card-body">
-                        <h3 class="card-title" style="color:black;">Unban</h3>
-                        <p class="card-text" style="color:black;font-size:22px;">35.00zł/jednorazowo</p>
+            </div>';
+		 }
+			//tu trzeba skopiowac powyzsze jako stmtc
+            foreach ($stmtc as $row) {
+                echo '<div class="col-md-4 d-flex justify-content-center produkt">
+                    <div class="card" style="width:400px;">
+                        <img class="card-img-top produkt'.$row['id_produktu'].'" src="'.$row['obraz'].'" alt="Card image">
+                        <div class="card-body">
+                            <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['nazwa'].'</h3>
+                            <p class="card-text produkt'.$row['id_produktu'].'" style="font-size:22px;">'.$row['cena'].' zł</p>
+                            <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['opis'].'">
+                            <a class="btn btn-outline-primary text-center" style="width:50%;margin: 0px auto;font-size:18px;" onclick="showProd('.$row['id_produktu'].')" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Wybierz</a>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
+                </div>';
+            }
+		
+		      
+            $stmta->closeCursor();
+			$stmtb->closeCursor();
+			$stmtc->closeCursor();  
+			
+        } catch(PDOException $e) {
+            echo '😵';
+        }
+		
+		?>
+		
+		
         <div style="padding:40px;">
             <a class="btn btn-outline-primary text-center" style="min-width:35%;max-width:635px;margin: 0px auto;font-size:22px;" href="./sklep">Zobacz pełną ofertę</a>
         </div>
@@ -322,6 +431,39 @@
 </div>
 <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
 </div>
+
+
+
+<div class="fixed-bottom" id="alert">
+<div class="alert alert-primary d-flex align-items-center" role="alert" >
+<img src="./resources/cookie.png" style="width:60px;height:60px; padding:10px;">
+  <div>
+    <p><strong>Ta strona używa ciasteczek. Korzystając ze strony wyrażasz zgodę na warunki naszej polityki prywatności.</strong><br>Zapoznaj się z naszą <a href="polityka.html">polityką prywatności.</a></p>
+  </div>
+  <br>
+  <button type="button" class="btn btn-outline-primary text-center" id="accept" onclick="aaa();">Rozumiem</button>
+ <a class="btn btn-outline-primary text-center" href="bluescreen.html">Nie wyrażam zgody</a>
+</div>
+</div>
+
+
+
+<script>
+var alert=document.getElementById("alert");
+var accept=document.getElementById("accept");
+var body=document.getElementById("body");
+function aaa(){
+	alert.style.display = "none";
+	
+}
+document.addEventListener("DOMContentLoaded", function(event) {
+  alert.style.display = "block";
+
+});
+	
+	
+
+</script>
 <script src="./resources/scroll.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
