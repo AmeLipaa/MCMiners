@@ -1,7 +1,8 @@
 <?php
-
 session_start();
 ob_start();
+
+require("bd-authorize.php"); //autoryzacja dostępu do bazy danych
 
 function Check(){
     if(isset($_SESSION['user'])) {
@@ -10,9 +11,6 @@ function Check(){
 }
 
 Check();
-
-require("../../backrooms/bd-authorize.php");
-
 ?>
 <!DOCTYPE html>
 <html lang="pl">
@@ -22,7 +20,7 @@ require("../../backrooms/bd-authorize.php");
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>MinersMC</title>
-    <link rel="icon" type="image/png" href="../../resources/logo.png">
+    <link rel="icon" type="image/png" href="../resources/logo.png">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,7 +30,7 @@ require("../../backrooms/bd-authorize.php");
 
     <style>
         body{
-            background: repeat url("../../resources/bg2.png");
+            background: repeat url("../resources/bg2.png");
             color: white;
             position: relative;
         }
@@ -67,7 +65,7 @@ require("../../backrooms/bd-authorize.php");
             color: white;
         }
         .navbar-dark{
-            background: repeat url("../../resources/dirt.jpg");
+            background: repeat url("../resources/dirt.jpg");
         }
         .scrolled-down{
             transform:translateY(-100%); transition: all 0.3s ease-in-out;
@@ -181,11 +179,9 @@ require("../../backrooms/bd-authorize.php");
 </head>
 <body data-bs-spy="scroll" data-bs-target="#navigacja">
 <?php
-
 if (isset($_POST["login"])) {
     $email = $_POST['email'];
     $pwd = $_POST['pwd'];
-    require("bd-authorize.php"); //Autoryzacja dostępu do bazy danych
 
     try{
         $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -196,12 +192,14 @@ if (isset($_POST["login"])) {
             if($email == $row['email']){
                 $checkpwd = hash('whirlpool',$pwd);
                 if($checkpwd == $row['haslo']){
+                    if($row['admin'] == 1){
                         $_SESSION['user'] = $row['id_klienta'];
+                    }
                 }
             }
         }
-        Check();
         $stmt->closeCursor();
+        Check();
     } catch(PDOException $e) {
         echo '😵';
     }
@@ -211,7 +209,7 @@ if (isset($_POST["login"])) {
 <div class="container-fluid">
     <nav class="navbar autohide fixed-top navbar-dark navbar-expand-md justify-content-center">
         <div class="container">
-            <a href=".." class="navbar-brand d-flex w-50 me-auto"><img src="../../resources/logo.png" style="height:50px;" /></a>
+            <a href=".." class="navbar-brand d-flex w-50 me-auto"><img src="../resources/logo.png" style="height:50px;" /></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsingNavbar3">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -228,7 +226,7 @@ if (isset($_POST["login"])) {
 
     <div class="row justify-content-center">
         <div class="col-12" style="background: linear-gradient(180deg, rgba(0,0,0,0.5046219171262255) 0%, rgba(0,0,0,0.5) 90%, rgba(0,0,0,0) 100%);">
-            <img src="../../resources/logo.png" class="animlogo">
+            <img src="../resources/logo.png" class="animlogo">
             <form method="post">
                 <input class="mb-2" type="email" name="email" placeholder="E-mail" required><br>
                 <input class="mb-2" type="password" name="pwd" placeholder="Hasło" required><br>
