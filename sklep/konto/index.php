@@ -9,6 +9,11 @@ function Check(){
         header('location:panel.php');
     }
 }
+function aMozeDoSklepu(){
+    if(isset($_SESSION['user'])) {
+        header('location:..');
+    }
+}
 
 Check();
 ?>
@@ -225,7 +230,7 @@ if (isset($_POST["login"])) {
 
         }
         $stmt->closeCursor();
-        Check();
+        aMozeDoSklepu();
     } catch(PDOException $e) {
         echo '😵';
     }
