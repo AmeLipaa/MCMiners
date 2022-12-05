@@ -26,32 +26,38 @@ try{
     }
     $stmt->closeCursor();
 
-    if(isset($_POST['confirm'])){
-        $title = str_replace("'", "''", $_POST['title']); //dla bezpieczeństwa zamienia pojedyncze apostrofy na podwójne
-        $text = str_replace("'", "''", $_POST['text']);
-        $date = $_POST['date'];
-        $author = $_SESSION['user'];
-        if(!empty($title) && !empty($text) && !empty($date)){
-            $stmt = $pdo->exec('INSERT INTO wpisy (`id_klienta`, `tytul`, `tresc`, `data`) VALUES ( "'.$author.'","'.$title.'","'.$text.'","'.$date.'")');
+    if(isset($_POST['add'])){
+        $nick = $_POST['nick'];
+        $email = $_POST['email'];
+        $pwd = $_POST['pwd'];
+        if(isset($_POST['status'])){
+            $admin = 1;
+        } else {
+            $admin = 0;
         }
-        header('location:panel-updates.php');
-    }
-    if(isset($_POST['edit'])){
-        $updateid = $_POST['ID'];
-        $title = str_replace("'", "''", $_POST['title']); //dla bezpieczeństwa zamienia pojedyncze apostrofy na podwójne
-        $text = str_replace("'", "''", $_POST['text']);
-        $date = $_POST['date'];
-        $author = $_SESSION['user'];
-        if(!empty($title) && !empty($text) && !empty($date)){
-            $stmt = $pdo->exec('UPDATE wpisy SET `id_klienta` = "'.$author.'", `tytul` = "'.$title.'", `tresc` = "'.$text.'" , `data` = "'.$date.'"WHERE `id_klienta` LIKE '.$updateid);
+        if(!empty($nick) && !empty($email) && !empty($pwd)){
+            $stmt = $pdo->exec('INSERT INTO klienci (`nick`, `email`, `haslo`, `admin`) VALUES ( "'.$nick.'","'.$email.'","'.hash('whirlpool',$pwd).'",'.$admin.')');
         }
-        header('location:panel-updates.php');
+        header('location:panel-users.php');
+    } elseif(isset($_POST['edit'])){
+        $userid = $_POST['ID'];
+        $nick = $_POST['nick'];
+        $email = $_POST['email'];
+        if(isset($_POST['status'])){
+            $admin = 1;
+        } else {
+            $admin = 0;
+        }
+        if(!empty($nick) && !empty($email) && !empty($userid)){
+            $stmt = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'", `admin` = "'.$admin.'" WHERE `id_klienta` LIKE '.$userid);
+        }
+        header('location:panel-users.php');
     } elseif(isset($_POST['remove'])){
         $userid = $_POST['ID'];
         if(!empty($userid)){
-            $stmt = $pdo -> exec('DELETE FROM wpisy WHERE `id_wpisu` = '.$updateid);
+            $stmt = $pdo->exec('UPDATE klienci SET `email` = "NULL", `haslo` = "NULL" WHERE `id_klienta` LIKE '.$userid); // Usuwanie nie powinno całkowicie wymazywać użytkownika z bazy danych bo musi zostać w historii tranzakcji
         }
-        header('location:panel-updates.php');
+        header('location:panel-users.php');
     }
 
 } catch(PDOException $e) {
@@ -144,46 +150,9 @@ try{
             color:white;
             border: none;
         }
-        #confirm{
-            display: block;
-            text-align: center;
-            margin-left: auto;
-            margin-right: auto;
-            min-width: 150px;
-        }
-        #date{
-            max-width: 317px;
-            text-align: center;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
         .invis{
             background-color: rgba(0, 0, 0, 0);
             border: none;
-        }
-        .box-shadow{
-            -webkit-box-shadow: 5px 5px 0px 0px rgba(39, 39, 42, 1);
-            -moz-box-shadow: 5px 5px 0px 0px rgba(39, 39, 42, 1);
-            box-shadow: 5px 5px 0px 0px rgba(39, 39, 42, 1);
-        }
-        .welcomediv{
-            max-width: 50%;
-            margin: auto;
-        }
-        .welcome{
-            margin: 20px auto 20px auto;
-            text-align: center;
-            display: block;
-        }
-        .searchpanel{
-            margin: auto;
-            display: block;
-            width: 90%;
-            text-align: center;
-        }
-        .searchpanel input{
-            min-width: 150px;
         }
         .modal-header{
             color: white;
@@ -195,6 +164,26 @@ try{
         }
         .modal-footer{
             background: repeat url("../resources/dirt.jpg");
+        }
+        .big-btn svg{
+            color: #00FF7F;
+        }
+        .big-btn:hover svg{
+            color:#00b359;
+            width: 105px;
+            height: 105px;
+            transition: 0.3s;
+        }
+        .big-btn:active svg{
+            color:#00b359;
+            width: 95px;
+            height: 95px;
+            transition: 0.2s;
+        }
+        .box-shadow{
+            -webkit-box-shadow: 5px 5px 0px 0px rgba(39, 39, 42, 1);
+            -moz-box-shadow: 5px 5px 0px 0px rgba(39, 39, 42, 1);
+            box-shadow: 5px 5px 0px 0px rgba(39, 39, 42, 1);
         }
         table{
             text-align: center;
@@ -209,6 +198,24 @@ try{
             background-color: #42445A;
             color: #00FF7F;
             transition: 0.3s;
+        }
+        .searchpanel{
+            margin: auto;
+            display: block;
+            width: 90%;
+            text-align: center;
+        }
+        .searchpanel input{
+            min-width: 150px;
+        }
+        .welcomediv{
+            max-width: 50%;
+            margin: auto;
+        }
+        .welcome{
+            margin: 20px auto 20px auto;
+            text-align: center;
+            display: block;
         }
     </style>
 
@@ -264,20 +271,9 @@ try{
     </div>
     <div class="separator"></div>
 
-    <form method="post" class="m-5">
-            <input class="form-control mt-3" type="text" maxlength="128" name="title" id="title" placeholder="Tytuł" required>
-            <textarea class="form-control mt-3" name="text" id="text" required></textarea>
-            <input class="form-control mt-3" type="date" name="date" id="date" required>
-            <button id="confirm" name="confirm" type="submit" class="btn btn-primary mt-3">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                    <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                </svg>
-                Opublikuj
-            </button>
-    </form>
     <div class="searchpanel">
         <form method="post">
-            <input maxlength="48" placeholder="" name="which-update">
+            <input maxlength="48" placeholder="Nick" name="which-user">
             <button class="btn btn-outline-primary" type="submit" name="search">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
@@ -285,15 +281,35 @@ try{
                 Szukaj
             </button>
         </form>
+        <button class="btn btn-outline-primary" onclick="addingMode()" data-bs-toggle="modal" data-bs-target="#userForm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-fill-add" viewBox="0 0 16 16">
+                <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0Zm-2-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                <path d="M2 13c0 1 1 1 1 1h5.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.544-3.393C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4Z"/>
+            </svg>
+            Dodaj
+        </button>
     </div>
+
     <div class="row">
         <div class="d-none d-lg-block col-lg-2"></div>
         <div class="col-12 col-lg-8">
             <table>
                 <tr>
-                    <th>Autor</th>
-                    <th>Tytuł</th>
-                    <th>Data</th>
+                    <th>
+                        ID
+                    </th>
+                    <th class="d-none d-md-table-cell">
+                        Skin
+                    </th>
+                    <th>
+                        Nick
+                    </th>
+                    <th>
+                        E-mail
+                    </th>
+                    <th>
+                        Ranga
+                    </th>
                 </tr>
                 <?php
                 try{
@@ -301,21 +317,31 @@ try{
                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
                     if (isset($_POST['search'])) {
-                        $whichupdate = $_POST['which-update'];
+                        $whichuser = $_POST['which-user'];
                     }
 
-                    if(!empty($whichupdate)){
-                        $stmt = $pdo->query('SELECT id_wpisu, nick, tytul,tresc, `data` FROM wpisy inner join klienci on wpisy.id_klienta=klienci.id_klienta WHERE tytul LIKE "'.$whichupdate.'%" or nick LIKE "'.$whichupdate.'%";');
+                    if(!empty($whichuser)){
+                        $stmt = $pdo->query('SELECT * FROM klienci WHERE nick LIKE "'.$whichuser.'%";');
                     } else {
-                        $stmt = $pdo->query('SELECT id_wpisu, nick, tytul,tresc, `data` FROM wpisy inner join klienci on wpisy.id_klienta=klienci.id_klienta;');
+                        $stmt = $pdo->query('SELECT * FROM klienci;');
                     }
                     foreach ($stmt as $row) {
-                        echo "<tr id='update" . $row['id_wpisu'] . "' onclick='edit(" . $row['id_wpisu'] . ")' data-bs-toggle='modal' data-bs-target='#updateForm'>";
-                        echo "<td>" . $row['nick'] . "</td>";
-                        echo "<td>" . $row['tytul'] . "</td>";
-                        echo "<td style='display:none'>" . $row['tresc'] . "</td>";
-                        echo "<td>" . $row['data'] . "</td>";
-                        echo "</tr>";
+                        echo "<tr id='user".$row['id_klienta']."' onclick='edit(".$row['id_klienta'].")' data-bs-toggle='modal' data-bs-target='#userForm'>";
+                        echo "<td>".$row['id_klienta']."</td>";
+                        echo "<td class='d-none d-md-table-cell'><img src='https://minotar.net/helm/".$row['nick']."/50.png'";
+                        if($row['haslo'] == "NULL"){
+                            echo " style='filter:saturate(0)' ";
+                        }
+                        echo "/></td>";
+                        echo "<td>".$row['nick']."</td>";
+                        echo "<td>".$row['email']."</td>";
+                        echo "<td>";
+                        if($row['admin']==1){
+                            echo "Admin";
+                        } else {
+                            echo "Klient";
+                        }
+                        echo "</td></tr>";
                     }
                     $stmt->closeCursor();
                 } catch(PDOException $e) {
@@ -325,30 +351,40 @@ try{
             </table>
         </div>
         <div class="col-md-none col-lg-2"></div>
-        <div class="modal fade" id="updateForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal fade" id="userForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Edycja wpisu</h5>
+                    <h5 class="modal-title" id="modalTitle">Dodawanie klienta</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="post">
                     <div class="modal-body">
-                        <input value="" disabled="true" name="ID" id="updateFormID" style="display:none">
-                        <input class="form-control mt-3" type="text" maxlength="48" name="author" id="updateFormAutor" placeholder="Autor" required>
-                        <input class="form-control mt-3" type="text" maxlength="48" name="title" id="updateFormTytul" placeholder="Tytuł" required>
-                        <input class="form-control mt-3" style= "white-space:normal;"type="text" maxlength="256" name="text" id="updateFormTresc" placeholder="Treść" required>
-                        <input class="form-control mt-3" type="date" maxlength="48" name="date" id="updateFormDate" placeholder="Data" required>
+                        <input value="" disabled="true" name="ID" id="userFormID" style="display:none">
+                        <input class="form-control mt-3" type="text" maxlength="48" name="nick" id="userFormNick" placeholder="Nick" required>
+                        <input class="form-control mt-3" type="email" maxlength="64" name="email" id="userFormEmail" placeholder="E-mail" required>
+                        <input class="form-control mt-3" type="password" name="pwd" id="userFormPwd" maxlength="30" placeholder="Hasło" required>
+                        <input class="mt-3" type="checkbox" name="status" id="userFormAdmin" checked="false">
+                        Admin
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                        <button id="confirmRemove" name="remove" type="submit" class="btn btn-primary">
+                        <button id="confirmAddNew" name="add" type="submit" class="btn btn-primary" style="display:block">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                            </svg>
+                            Dodaj
+                        </button>
+                        <button id="confirmRemove" name="remove" type="submit" class="btn btn-primary" style="display:none">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
                                 <path d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm2.121.707a1 1 0 0 0-1.414 0L4.16 7.547l5.293 5.293 4.633-4.633a1 1 0 0 0 0-1.414l-3.879-3.879zM8.746 13.547 3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z"/>
                             </svg>
                             Usuń
                         </button>
-                        <button id="confirmEdit" name="edit" type="submit" class="btn btn-primary">
+                        <button id="confirmEdit" name="edit" type="submit" class="btn btn-primary" style="display:none">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
                             </svg>
@@ -364,24 +400,50 @@ try{
 </div>
 <script>
     var title = document.getElementById("modalTitle");
-    var ID = document.getElementById("updateFormID");
-    var Tytul = document.getElementById("updateFormTytul");
-    var Autor = document.getElementById("updateFormAutor");
-    var Tresc = document.getElementById("updateFormTresc");
-    var Data = document.getElementById("updateFormData");
+    var ID = document.getElementById("userFormID");
+    var Nick = document.getElementById("userFormNick");
+    var Email = document.getElementById("userFormEmail");
+    var Pwd = document.getElementById("userFormPwd");
+    var isAdmin = document.getElementById("userFormAdmin");
+    var addbutton = document.getElementById("confirmAddNew");
     var editbutton = document.getElementById("confirmEdit");
     var deletebutton = document.getElementById("confirmRemove");
-
-    function edit(id){
-        title.innerText = "Edycja wpisu";
-        ID.value = id;
-        Tytul.value = document.getElementById("update" + id).children[0].innerText;
-        Autor.value = document.getElementById("update" + id).children[1].innerText;
-        Tresc.value = document.getElementById("update" + id).children[2].innerText;
-        Data.value = document.getElementById("update" + id).children[3].innerText;
-       
+    function addingMode(){
+        title.innerText = "Dodawanie klienta";
+        addbutton.style.display = "block";
+        editbutton.style.display = "none";
+        deletebutton.style.display = "none";
+        ID.value = "";
+        ID.disabled = true;
+        Nick.value = "";
+        Email.value = "";
+        Pwd.disabled = false;
+        Pwd.value = "";
+        isAdmin.checked = false;
     }
-
+    function edit(id){
+        title.innerText = "Edycja klienta";
+        addbutton.style.display = "none";
+        ID.value = id;
+        ID.disabled = false;
+        Nick.value = document.getElementById("user" + id).children[2].innerText;
+        Email.value = document.getElementById("user" + id).children[3].innerText;
+        Pwd.disabled = true;
+        Pwd.value = "N/A";
+        if(document.getElementById("user" + id).children[4].innerText == "Admin"){
+            isAdmin.checked = true;
+            deletebutton.style.display = "none";
+        } else {
+            isAdmin.checked = false;
+            deletebutton.style.display = "block";
+        }
+        if(document.getElementById("user" + id).children[3].innerText == "NULL"){
+            editbutton.style.display = "none";
+            deletebutton.style.display = "none";
+        } else {
+            editbutton.style.display = "block";
+        }
+    }
 </script>
 <script src="../resources/scroll.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>

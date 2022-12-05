@@ -55,7 +55,14 @@ try{
     } elseif(isset($_POST['remove'])){
         $userid = $_POST['ID'];
         if(!empty($userid)){
-            $stmt = $pdo->exec('UPDATE klienci SET `email` = "NULL", `haslo` = "NULL" WHERE `id_klienta` LIKE '.$userid); // Usuwanie nie powinno całkowicie wymazywać użytkownika z bazy danych bo musi zostać w historii tranzakcji
+            $stmt = $pdo->query('SELECT id_klienta FROM transakcja WHERE id_klienta = '.$userid);
+            if($stmt->rowCount() == 0){
+                $stmt->closeCursor();
+                $stmt = $pdo -> exec('DELETE FROM klienci WHERE `id_klienta` = '.$userid); // Jeśli klient nigdy niczego nie kupował to usuń go z bazy
+            } else {
+                $stmt->closeCursor();
+                $stmt = $pdo->exec('UPDATE klienci SET `email` = "NULL", `haslo` = "NULL" WHERE `id_klienta` = '.$userid); // Usuwanie nie powinno całkowicie wymazywać użytkownika z bazy danych bo musi zostać w historii tranzakcji
+            }
         }
         header('location:panel-users.php');
     }
@@ -326,17 +333,17 @@ try{
                         $stmt = $pdo->query('SELECT * FROM klienci;');
                     }
                     foreach ($stmt as $row) {
-                        echo "<tr id='user".$row['id_klienta']."' onclick='edit(".$row['id_klienta'].")' data-bs-toggle='modal' data-bs-target='#userForm'>";
-                        echo "<td>".$row['id_klienta']."</td>";
-                        echo "<td class='d-none d-md-table-cell'><img src='https://minotar.net/helm/".$row['nick']."/50.png'";
-                        if($row['haslo'] == "NULL"){
+                        echo "<tr id='user" . $row['id_klienta'] . "' onclick='edit(" . $row['id_klienta'] . ")' data-bs-toggle='modal' data-bs-target='#userForm'>";
+                        echo "<td>" . $row['id_klienta'] . "</td>";
+                        echo "<td class='d-none d-md-table-cell'><img src='https://minotar.net/helm/" . $row['nick'] . "/50.png'";
+                        if ($row['haslo'] == "NULL") {
                             echo " style='filter:saturate(0)' ";
                         }
                         echo "/></td>";
-                        echo "<td>".$row['nick']."</td>";
-                        echo "<td>".$row['email']."</td>";
+                        echo "<td>" . $row['nick'] . "</td>";
+                        echo "<td>" . $row['email'] . "</td>";
                         echo "<td>";
-                        if($row['admin']==1){
+                        if ($row['admin'] == 1) {
                             echo "Admin";
                         } else {
                             echo "Klient";
@@ -365,7 +372,7 @@ try{
                     <div class="modal-body">
                         <input value="" disabled="true" name="ID" id="userFormID" style="display:none">
                         <input class="form-control mt-3" type="text" maxlength="48" name="nick" id="userFormNick" placeholder="Nick" required>
-                        <input class="form-control mt-3" type="email" maxlength="64" name="email" id="userFormEmail" placeholder="E-mail" required>
+                        <input class="form-control mt-3" type="email" maxlength="75" name="email" id="userFormEmail" placeholder="E-mail" required>
                         <input class="form-control mt-3" type="password" name="pwd" id="userFormPwd" maxlength="30" placeholder="Hasło" required>
                         <input class="mt-3" type="checkbox" name="status" id="userFormAdmin" checked="false">
                         Admin

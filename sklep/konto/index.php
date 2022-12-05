@@ -6,13 +6,12 @@ require("../../backrooms/bd-authorize.php"); //autoryzacja dostępu do bazy dany
 
 function Check(){
     if(isset($_SESSION['user'])) {
-		if ($_SESSION['user']==1 || $_SESSION['user']==3 || $_SESSION['user']==6)
-		{
-			header('location: ../../backrooms/panel.php');
-		}
-		else {
-			header('location: panel.php');
-		}
+        header('location:panel.php');
+    }
+}
+function aMozeDoSklepu(){
+    if(isset($_SESSION['user'])) {
+        header('location:..');
     }
 }
 
@@ -94,18 +93,19 @@ Check();
             border: none;
         }
         .btn-secondary{
-             background-color:#444;
+            background-color:#444;
             color:white;
             border: none;
             text-align: center;
             margin: 0px auto 50px auto;
             display: block;
+            width: 150px;
         }
         form{
             text-align: center;
-             margin: 50px 50px 10px 50px;
+            margin: 50px 50px 10px 50px;
         }
-		 a{
+        a{
             text-decoration: none !important;
         }
         .animlogo {
@@ -194,10 +194,8 @@ Check();
 if (isset($_POST["login"])) {
     $email = $_POST['email'];
     $pwd = $_POST['pwd'];
-	$kontrolka=0;
 
-    try{
-        $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+    try{ $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
 
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $stmt = $pdo->query('SELECT * FROM klienci');
@@ -259,6 +257,7 @@ if (isset($_POST["login"])) {
 		
         $stmt->closeCursor();
         Check();
+        aMozeDoSklepu();
     } catch(PDOException $e) {
         echo '😵';
     }
@@ -289,14 +288,14 @@ if (isset($_POST["login"])) {
             <form method="post">
                 <input class="mb-2" type="text" name="email" placeholder="E-mail lub nick" required><br>
                 <input class="mb-2" type="password" name="pwd" placeholder="Hasło" required><br>
-				<input type="checkbox" id="zapamietaj" name="zapamietaj" value="zapamietaj" checked="true">Zapamiętaj mnie<br>
+                <!--<input type="checkbox" id="zapamietaj" name="zapamietaj" value="zapamietaj" checked="true">Zapamiętaj mnie<br>-->
                 <button class="btn btn-primary" type="submit" name="login">Zaloguj</button>
             </form>
-			 <a href="register.php" class="btn btn-secondary" style="width:10%;margin: 0px auto; padding-right:10px;" data-bs-target="_self">Nie mam konta</a>
+            <a href="register.php" class="btn btn-secondary" data-bs-target="_self">Nie mam konta</a>
         </div>
     </div>
-	<br>
-	<br>
+    <br>
+    <br>
 
     <footer>Wdrożenie - AM 2022</footer>
 </div>

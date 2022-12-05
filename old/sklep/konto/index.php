@@ -1,13 +1,17 @@
 <?php
+
+session_start();
 ob_start();
 
-if(isset($_SESSION['user'])){
-    header('location:panel.php');
-    echo $_SESSION['user'];
+function Check(){
+    if(isset($_SESSION['user'])) {
+        header('location:panel.php');
+    }
 }
 
-require("../../backrooms/bd-authorize.php");
+Check();
 
+require("../../backrooms/bd-authorize.php");
 
 ?>
 <!DOCTYPE html>
@@ -74,14 +78,6 @@ require("../../backrooms/bd-authorize.php");
         footer{
             text-align:center;
             color:white;
-            margin-top: auto;
-        }
-        .btn:focus{
-            box-shadow: 0 0 0 .25rem rgba(0, 179, 89,.5) !important;
-        }
-        .btn-primary:active{
-            background-color: #00b359;
-            border-color: #00FF7F;
         }
         .btn-primary{
             background-color:#00FF7F;
@@ -93,27 +89,14 @@ require("../../backrooms/bd-authorize.php");
             color:black;
             border: none;
         }
-        .btn-primary:focus{
-            background-color:#00b359;
-        }
         .btn-secondary{
             background-color:#444;
             color:white;
             border: none;
-            text-align: center;
-            margin: 0px auto 50px auto;
-            display: block;
-        }
-        .alert{
-            margin-bottom: 0 !important;
         }
         form{
             text-align: center;
-            margin: 50px 50px 10px 50px;
-        }
-        a{
-            text-decoration: none !important;
-			
+            margin: 50px;
         }
         .animlogo {
             display: block;
@@ -198,68 +181,29 @@ require("../../backrooms/bd-authorize.php");
 </head>
 <body data-bs-spy="scroll" data-bs-target="#navigacja">
 <?php
-if (isset($_POST["signup"])) {
 
-    $nick = $_POST['nick'];
+if (isset($_POST["login"])) {
     $email = $_POST['email'];
     $pwd = $_POST['pwd'];
-    $pwd2 = $_POST['pwd2'];
+    require("bd-authorize.php"); //Autoryzacja dostępu do bazy danych
 
     try{
         $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
 
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $stmt = $pdo->query('SELECT * FROM klienci');
-        $kontrolka=0;
         foreach ($stmt as $row) {
-
             if($email == $row['email']){
-                $kontrolka++;
-                echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				<strong>Ten adres e-mail jest już w użyciu</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
-
+                $checkpwd = hash('whirlpool',$pwd);
+                if($checkpwd == $row['haslo']){
+                        $_SESSION['user'] = $row['id_klienta'];
+                }
             }
-            else if ($nick == $row['nick']){
-                $kontrolka++;
-                echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				<strong>Ten nick jest już w użyciu</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
-            }
-
         }
+        Check();
         $stmt->closeCursor();
-
-        if(strlen($pwd)<6 || strlen($pwd)>30){
-            $kontrolka++;
-            echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				<strong>Hasło musi mieć od 6 do 30 znaków</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
-        }
-        else if ($pwd!=$pwd2){
-            $kontrolka++;
-            echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				<strong>Podane hasła muszą być identyczne</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
-        }
-        else if($kontrolka==0){
-            $checkpwd = hash('whirlpool',$pwd);
-            $stmta = $pdo->query('INSERT INTO klienci( nick,email,haslo,admin) VALUES ("'.$nick.'","'.$email.'","'.$checkpwd.'",0);');
-            echo '<div class="alert alert-success d-flex align-items-center" role="alert" id="jupi">
-					<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
-					<div>
-							Witaj na pokładzie, '.$nick.'!
-					</div>
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=window.location.href; return false;"></button>
-					</div>';
-            $stmta->closeCursor();
-        }
     } catch(PDOException $e) {
-        echo '??';
+        echo '😵';
     }
 }
 ?>
@@ -286,30 +230,16 @@ if (isset($_POST["signup"])) {
         <div class="col-12" style="background: linear-gradient(180deg, rgba(0,0,0,0.5046219171262255) 0%, rgba(0,0,0,0.5) 90%, rgba(0,0,0,0) 100%);">
             <img src="../../resources/logo.png" class="animlogo">
             <form method="post">
-                <input class="mb-2" type="text" name="nick" maxlength="48" placeholder="Nick w grze" required><br>
-                <input class="mb-2" type="email" name="email" maxlength="75" placeholder="E-mail" required><br>
-                <input class="mb-2" type="password" name="pwd" maxlength="30" minlength="6" placeholder="Hasło" required><br>
-                <input class="mb-2" type="password" name="pwd2" maxlength="30" minlength="6" placeholder="Powtórz hasło" required><br>
-                <button class="btn btn-primary" type="submit" name="signup">Zarejestruj się</button>
+                <input class="mb-2" type="email" name="email" placeholder="E-mail" required><br>
+                <input class="mb-2" type="password" name="pwd" placeholder="Hasło" required><br>
+                <button class="btn btn-primary" type="submit" name="login">Zaloguj</button>
             </form>
-            <a href="index.php" class="btn btn-secondary" style="width:10%;margin: 0px auto; padding-right:10px;" data-bs-target="_self">Mam już konto</a>
         </div>
     </div>
-	<br>
-	<br>
 
     <footer>Wdrożenie - AM 2022</footer>
 </div>
-<script>
-    var myAlert = document.getElementById('jupi');
-    if (myAlert!==null){
-
-        myAlert.addEventListener('closed.bs.alert', function () {
-            document.location.reload(true);
-        })
-    }
-</script>
-<script src="../../resources/scroll.js"></script>
+<script src="../resources/scroll.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
 </body>
