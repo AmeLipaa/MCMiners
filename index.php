@@ -85,6 +85,9 @@
         .scrolled-up{
             transform:translateY(0); transition: all 0.3s ease-in-out;
         }
+        .bi{
+            margin-right: 25px;
+        }
     </style>
 
 </head>
@@ -234,12 +237,10 @@
                     echo "<h2 style='text-decoration:underline;'>".$row['tytul']."</h2>";
                     if (strlen($row['tresc']) > 450)
                     {
-                        $str = 0;
                         $shorttext = substr($row['tresc'],0,450);
                         $pos = strrpos($shorttext, ' ');
-                        if ($pos !== false && $pos > 200){
+                        if ($pos !== false && $pos > 200)
                             $str = substr($str,0,$pos);
-                        }
                         $shorttext .= '...';
                         echo "<p style='font-size:20px;' class='d-md-block d-none'>".$row['tresc']."</p>";
                         echo "<p style='font-size:20px;' class='d-md-none d-block'>".$shorttext."</p>";
@@ -309,13 +310,29 @@
         </h1>
         <div class="row" style="margin-bottom:100px;">
             <div class="col-md-4 d-flex justify-content-center">
-                <a class="btn btn-outline-primary text-center" style="width:400px;font-size:22px;" href="https://discord.com/"><img src="https://cdn.iconscout.com/icon/free/png-256/discord-3691244-3073764.png" style="height:64px;width:64px;margin-right:25px;" />Discord</a>
+                <a class="btn btn-outline-primary text-center" style="width:400px;font-size:22px;" href="https://discord.com/">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-discord" viewBox="0 0 16 16">
+                        <path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.052.052 0 0 1 .053.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.03.03.052.052 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"/>
+                    </svg>
+                    Discord
+                </a>
             </div>
             <div class="col-md-4 d-flex justify-content-center">
-                <a class="btn btn-outline-primary text-center" style="width:400px;font-size:22px;" href="https://twitter.com/RetroTechDreams"><img src="https://www.freepnglogos.com/uploads/twitter-logo-png/twitter-logo-vector-png-clipart-1.png" style="height:64px;width:64px;margin-right:25px;" />Twitter</a>
+                <a class="btn btn-outline-primary text-center" style="width:400px;font-size:22px;" href="https://twitter.com/RetroTechDreams">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-twitter" viewBox="0 0 16 16">
+                        <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                    </svg>
+                    Twitter
+                </a>
             </div>
             <div class="col-md-4 d-flex justify-content-center">
-                <a class="btn btn-outline-primary text-center disabled" style="width:400px;font-size:22px;color:white;" href="/sklep"><img src="https://icon-library.com/images/white-email-icon-png/white-email-icon-png-16.jpg" style="height:64px;width:64px;margin-right:25px;" />minersmc@mc.pl</a>
+                <a class="btn btn-outline-primary text-center disabled" style="width:400px;font-size:22px;color:white;" href="/sklep">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-envelope-at-fill" viewBox="0 0 16 16">
+                        <path d="M2 2A2 2 0 0 0 .05 3.555L8 8.414l7.95-4.859A2 2 0 0 0 14 2H2Zm-2 9.8V4.698l5.803 3.546L0 11.801Zm6.761-2.97-6.57 4.026A2 2 0 0 0 2 14h6.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.606-3.446l-.367-.225L8 9.586l-1.239-.757ZM16 9.671V4.697l-5.803 3.546.338.208A4.482 4.482 0 0 1 12.5 8c1.414 0 2.675.652 3.5 1.671Z"/>
+                        <path d="M15.834 12.244c0 1.168-.577 2.025-1.587 2.025-.503 0-1.002-.228-1.12-.648h-.043c-.118.416-.543.643-1.015.643-.77 0-1.259-.542-1.259-1.434v-.529c0-.844.481-1.4 1.26-1.4.585 0 .87.333.953.63h.03v-.568h.905v2.19c0 .272.18.42.411.42.315 0 .639-.415.639-1.39v-.118c0-1.277-.95-2.326-2.484-2.326h-.04c-1.582 0-2.64 1.067-2.64 2.724v.157c0 1.867 1.237 2.654 2.57 2.654h.045c.507 0 .935-.07 1.18-.18v.731c-.219.1-.643.175-1.237.175h-.044C10.438 16 9 14.82 9 12.646v-.214C9 10.36 10.421 9 12.485 9h.035c2.12 0 3.314 1.43 3.314 3.034v.21Zm-4.04.21v.227c0 .586.227.8.581.8.31 0 .564-.17.564-.743v-.367c0-.516-.275-.708-.572-.708-.346 0-.573.245-.573.791Z"/>
+                    </svg>
+                    minersmc@mc.pl
+                </a>
             </div>
         </div>
     </div>

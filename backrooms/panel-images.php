@@ -9,6 +9,25 @@ if(!isset($_SESSION['user'])){
 }
 
 require("bd-authorize.php"); //Autoryzacja dostępu do bazy danych
+
+try{
+    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $stmt = $pdo->query('SELECT id_klienta, admin FROM klienci WHERE id_klienta = '.$_SESSION['user']);
+    foreach ($stmt as $row) {
+        if($row['admin'] != 1){
+            session_unset();
+            session_destroy();
+            header('location:index.php');
+        }
+    }
+    $stmt->closeCursor();
+} catch(PDOException $e) {
+    session_unset();
+    session_destroy();
+    header('location:index.php');
+}
 ?>
 <!DOCTYPE html>
 <html lang="pl">
@@ -241,6 +260,17 @@ require("bd-authorize.php"); //Autoryzacja dostępu do bazy danych
     </div>
     <div class="separator"></div>
 
+    <?php
+    if(isset($_POST['fileupload'])){
+        if(isset($_FILES['obraz'])){
+            $file_name = $_FILES['obraz']['name'];
+            $tmp_name = $_FILES['obraz']['tmp_name'];
+            $location = "../resources/";
+            move_uploaded_file($tmp_name, $location.$file_name);
+        }
+    }
+    ?>
+
     <div class="searchpanel">
         <input placeholder="Nazwa" id="searchfield">
         <button class="btn btn-outline-primary" id="search">
@@ -249,9 +279,9 @@ require("bd-authorize.php"); //Autoryzacja dostępu do bazy danych
             </svg>
             Szukaj
         </button>
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             <input class="forminput" type="file" name="obraz" id="newimg" accept="image/png,image/webp,image/gif">
-            <button class="btn btn-outline-primary" type="submit" name="fileupload">
+            <button class="btn btn-outline-primary" type="submit" name="fileupload" value="upload">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-fill-add" viewBox="0 0 16 16">
                     <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM8.5 7v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 1 0z"/>
                 </svg>
@@ -405,12 +435,13 @@ require("bd-authorize.php"); //Autoryzacja dostępu do bazy danych
 <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
 <script>
     document.getElementById("search").addEventListener("click", function() {
+        var colclass = "col-xxl-3 col-lg-4 col-md-6 d-flex justify-content-center";
         var string = document.getElementById("searchfield").value;
         for(let i = 0; i < document.getElementsByClassName("imgcard").length; i++){
             if(document.getElementsByClassName("imgcard")[i].children[0].src.includes(string)){
-                document.getElementsByClassName("imgcard")[i].style.display = "block";
+                document.getElementsByClassName("imgcard")[i].parentElement.className = colclass;
             } else {
-                document.getElementsByClassName("imgcard")[i].style.display = "none"; //to do zamiany na class = "d-none"
+                document.getElementsByClassName("imgcard")[i].parentElement.className += " d-none";
             }
         }
     });
