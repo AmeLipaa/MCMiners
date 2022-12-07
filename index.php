@@ -355,7 +355,7 @@
                     <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['nazwa'].'</h3>
                     <p class="card-text produkt'.$row['id_produktu'].'" style="font-size:22px;">'.$row['cena'].' zł</p>
                     <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['opis'].'">
-                    <a class="btn btn-outline-primary text-center" style="width:50%;margin: 0px auto;font-size:18px;" onclick="showProd('.$row['id_produktu'].')" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Wybierz</a>
+                  
                 </div>
             </div>
         </div>';
@@ -369,7 +369,7 @@
                         <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['nazwa'].'</h3>
                         <p class="card-text produkt'.$row['id_produktu'].'" style="font-size:22px;">'.$row['cena'].' zł</p>
                         <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['opis'].'">
-                        <a class="btn btn-outline-primary text-center" style="width:50%;margin: 0px auto;font-size:18px;" onclick="showProd('.$row['id_produktu'].')" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Wybierz</a>
+                        
                     </div>
                 </div>
             </div>';
@@ -383,7 +383,7 @@
                             <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['nazwa'].'</h3>
                             <p class="card-text produkt'.$row['id_produktu'].'" style="font-size:22px;">'.$row['cena'].' zł</p>
                             <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['opis'].'">
-                            <a class="btn btn-outline-primary text-center" style="width:50%;margin: 0px auto;font-size:18px;" onclick="showProd('.$row['id_produktu'].')" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Wybierz</a>
+                           
                         </div>
                     </div>
                 </div>';
