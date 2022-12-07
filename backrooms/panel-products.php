@@ -72,15 +72,17 @@ try{
         header('location:panel-products.php');
     } elseif(isset($_POST['addCat'])){
         $catName = $_POST['nazwaKat'];
+        $type = $_POST['rodzaj'];
         if(!empty($catName)){
-            $stmt = $pdo->exec('INSERT INTO kategorie_prod (`nazwa`) VALUES ("'.$catName.'");');
+            $stmt = $pdo->exec('INSERT INTO kategorie_prod (`nazwa`, `typ`) VALUES ("'.$catName.'",'.$type.');');
         }
         header('location:panel-products.php');
     } elseif(isset($_POST['editCat'])){
         $ID = $_POST['ktorakat'];
         $catName = $_POST['nazwaKat'];
+        $typ = $_POST['rodzaj'];
         if(!empty($ID)){
-            $stmt = $pdo->exec('UPDATE kategorie_prod SET `nazwa` = "'.$catName.'" WHERE `id_kategorii` LIKE '.$ID); // Usuwanie nie powinno całkowicie wymazywać użytkownika z bazy danych bo musi zostać w historii tranzakcji
+            $stmt = $pdo->exec('UPDATE kategorie_prod SET `nazwa` = "'.$catName.'", `typ` = '.$typ.' WHERE `id_kategorii` LIKE '.$ID); // Usuwanie nie powinno całkowicie wymazywać użytkownika z bazy danych bo musi zostać w historii tranzakcji
         }
         header('location:panel-products.php');
     } elseif(isset($_POST['removeCat'])){
@@ -251,6 +253,12 @@ try{
             text-align: center;
             display: block;
         }
+        form a{
+            color: #00FF7F;
+        }
+        form a:hover{
+            color: #00b359;
+        }
     </style>
 
 </head>
@@ -405,12 +413,11 @@ try{
                             }
                             ?>
                         </select>
-                        <label for="productFormImg" class="form-label mt-3">Obraz dla produktu (Skalowany do 400x400)</label>
+                        <label for="link" class="form-label mt-3">Obraz produktu (Skalowany do 400x400)</label>
                         <br>
-                        <input type="radio" name="metoda" id="link" onchange="changeMethod()" checked>
-                        <label for="link">Link do obrazu</label>
-                        <input type="radio" name="metoda" id="dodaj" onchange="changeMethod()">
-                        <label for="dodaj">Dodaj nowy obraz</label>
+                        <a href="panel-images.php" target="popup" onclick="window.open('panel-images.php','popup','width=1000,height=800'); return false;">
+                            Zobacz bibliotekę obrazów
+                        </a>
                         <input class="form-control form-control-sm" type="file" name="obraz" id="productFormNewImg" accept="image/png,image/webp,image/gif" style="display:none;">
                         <input class="form-control" type="url" placeholder="Link do pliku z obrazem" name="obrazurl" id="productFormImgLink" style="display:block;">
                         <br>
@@ -465,6 +472,12 @@ try{
                         ?>
                     </select>
                     <input class="form-control mt-3" type="text" maxlength="48" name="nazwaKat" id="prodFormNazwaKat" placeholder="Nazwa" required>
+                    <select class="mt-3  form-control" id="rodzaj"  name="rodzaj" required>
+                        <option value="" disabled="" selected="">Rodzaj zakupu</option>
+                        <option value="0">Policzalny</option>
+                        <option value="1">Niepoliczalny (jednorazowy)</option>
+                        <option value="2">Na okres czasu</option>
+                    </select>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
@@ -488,12 +501,20 @@ try{
                     </button>
             </form>
         </div>
-        </div>
     </div>
+</div>
 </div>
 
 <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
 <script>
+    var typelist = [
+        <?php
+        $stmt = $pdo->query('SELECT typ FROM kategorie_prod;');
+        foreach ($stmt as $row) {
+            echo $row['typ'].",";
+        }
+        ?>
+    ];
     var title = document.getElementById("modalTitle1");
     var productid = document.getElementById("productFormID");
     var categoryid = document.getElementById("userFormCategoryID");
@@ -510,18 +531,19 @@ try{
     var deleteCat = document.getElementById("confirmRemoveCat");
     var selectedCat = document.getElementById('kategorianame');
     var Kategoria = document.getElementById("productFormKat");
+    var rodzajkat = document.getElementById("rodzaj");
     var fileInput = document.getElementById("productFormNewImg");
     var imgUrl = document.getElementById("productFormImgLink");
-    var methodDodaj = document.getElementById("dodaj");
-    var methodLink = document.getElementById("link");
     function kategoriaUpdate(){
         if(selectedCat.options[0].selected == true){
             NazwaKat.value = "";
+            rodzajkat.value = "";
             addCat.style.display = "block";
             editCat.style.display = "none";
             deleteCat.style.display = "none";
         } else {
             NazwaKat.value = selectedCat.options[selectedCat.value].innerText;
+            rodzajkat.value = typelist[selectedCat.selectedIndex-1];
             addCat.style.display = "none";
             editCat.style.display = "block";
             deleteCat.style.display = "block";
@@ -546,8 +568,6 @@ try{
         title.innerText = "Edycja produktu";
         productid.value = id;
         productid.disabled = false;
-        methodLink.checked = true;
-        changeMethod();
         if(document.getElementById("productid" + id).children[0].children.length > 0){
             imgUrl.value = document.getElementById("productid" + id).children[0].getElementsByTagName("img")[0].src;
         } else {
@@ -569,21 +589,6 @@ try{
         addbutton.style.display = "none";
         deletebutton.style.display = "block";
         editbutton.style.display = "block";
-    }
-    function changeMethod(){
-        if(methodLink.checked == true){
-            fileInput.style.display = "none";
-            fileInput.disabled = true;
-            imgUrl.disabled = false;
-            imgUrl.style.display = "block";
-            fileInput.value = "";
-        } else {
-            fileInput.style.display = "block";
-            fileInput.disabled = false;
-            imgUrl.disabled = true;
-            imgUrl.style.display = "none";
-            imgUrl.value = "";
-        }
     }
 </script>
 <script src="../resources/scroll.js"></script>

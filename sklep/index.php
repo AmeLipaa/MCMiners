@@ -273,9 +273,9 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                 if (isset($_POST['filter'])) {
                     $whichprod = $_POST['which-product'];
                     $sorting = $_POST['sort'];
-                    $stmt = $pdo->query('SELECT * FROM produkty WHERE nazwa LIKE "'.$whichprod.'%"'.$sorting.';');
+                    $stmt = $pdo->query('SELECT * FROM produkty AS p INNER JOIN kategorie_prod AS k ON p.id_kategorii = k.id_kategorii WHERE nazwa LIKE "'.$whichprod.'%"'.$sorting.';');
                 } else {
-                    $stmt = $pdo->query('SELECT * FROM produkty;');
+                    $stmt = $pdo->query('SELECT * FROM produkty AS p INNER JOIN kategorie_prod AS k ON p.id_kategorii = k.id_kategorii;');
                 }
 
                 foreach ($stmt as $row) {
@@ -283,9 +283,10 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                     <div class="card" style="width:400px;">
                         <img class="card-img-top produkt'.$row['id_produktu'].'" src="'.$row['obraz'].'" alt="Card image">
                         <div class="card-body">
-                            <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['nazwa'].'</h3>
+                            <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['p.nazwa'].'</h3>
                             <p class="card-text produkt'.$row['id_produktu'].'" style="font-size:22px;">'.$row['cena'].' zł</p>
                             <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['opis'].'">
+                             <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['typ'].'">
                             <a class="btn btn-outline-primary text-center" style="width:50%;margin: 0px auto;font-size:18px;" onclick="showProd('.$row['id_produktu'].')" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Wybierz</a>
                         </div>
                     </div>
@@ -389,8 +390,15 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
         title.innerHTML = document.getElementsByClassName("produkt"+id)[1].innerText;
         price.innerText = document.getElementsByClassName("produkt"+id)[2].innerText;
         desc.innerText = document.getElementsByClassName("produkt"+id)[3].value;
+        if(document.getElementsByClassName("produkt"+id)[4].value == 0){
+            ilosc.value = 1;
+            ilosc.style.display = "block";
+            ilosc.disabled = false;
+        } else {
+            ilosc.style.display = "none";
+            ilosc.disabled = true;
+        }
         prodid.value = id;
-        ilosc.value = 1;
         ogprice = Number(price.innerText.slice(0, -3));
     }
     function updateCena(){
