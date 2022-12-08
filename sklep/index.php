@@ -21,6 +21,14 @@ if(isset($_POST['add'])){
     }
     $_SESSION['produkty'] = $produkty; //aktualizuje zmienną z sesji
     $_SESSION['ilosci'] = $ilosci; //aktualizuje zmienną z sesji
+
+    echo '<div class="alert alert-success d-flex align-items-center" role="alert" id="jupi">
+					<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+					<div>
+							Pomyślnie dodano produkt do koszyka!
+					</div>
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=window.location.href; return false;"></button>
+					</div>';
     }
 ?>
 <!DOCTYPE html>
