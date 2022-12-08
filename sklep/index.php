@@ -2,15 +2,24 @@
 session_start();
 require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
 if(isset($_POST['add'])){
-    if(isset($_SESSION['produkty'])){ //sprawdza czy już istnieje w sesji zmienna produkty i jeśli tak to przypisuje istniejącą tabelę do zmiennej lokalnej
-    $produkty = $_SESSION['produkty'];
-    }
-    $produkty[] = $_POST['prodid']; //dopisuje do zmiennej lokalnej
-    $_SESSION['produkty'] = $produkty; //aktualizuje zmienną z sesji
+    $x = false;
     if(isset($_SESSION['ilosci'])){ //sprawdza czy już istnieje w sesji zmienna ilosci i jeśli tak to przypisuje istniejącą tabelę do zmiennej lokalnej
-    $ilosci = $_SESSION['ilosci'];
+        $ilosci = $_SESSION['ilosci'];
     }
-    $ilosci[] = $_POST['ilosc']; //dopisuje do zmiennej lokalnej
+    if(isset($_SESSION['produkty'])){ //sprawdza czy już istnieje w sesji zmienna produkty i jeśli tak to przypisuje istniejącą tabelę do zmiennej lokalnej
+        $produkty = $_SESSION['produkty'];
+        foreach($produkty as $key => $val){
+            if($val == $_POST['prodid']){
+                $ilosci[$key] += $_POST['ilosc']; //dopisuje do już istniejącej wartości w tablicy w sesji
+                $x = true;
+            }
+        }
+    }
+    if($x == false){
+        $produkty[] = $_POST['prodid']; //dopisuje do zmiennej lokalnej
+        $ilosci[] = $_POST['ilosc']; //dopisuje do zmiennej lokalnej
+    }
+    $_SESSION['produkty'] = $produkty; //aktualizuje zmienną z sesji
     $_SESSION['ilosci'] = $ilosci; //aktualizuje zmienną z sesji
     }
 ?>
