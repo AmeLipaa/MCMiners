@@ -191,7 +191,7 @@ if(!isset($_SESSION['user'])){
             <div class="navbar-collapse collapse w-100" id="collapsingNavbar3">
                 <ul class="navbar-nav w-100 justify-content-center">
                     <li class="nav-item">
-                        <a class="nav-link" href="..">Powrót</a>
+                        <a class="nav-link" href="../sklep">Powrót</a>
                     </li>
                     <li class="nav-item">
                         <form method="post">
@@ -226,46 +226,107 @@ if(!isset($_SESSION['user'])){
             echo '😵';
         }
         ?>
-        
+		<?php 
+try{
+    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	if (isset($_POST['usun'])) {
+		unset($_SESSION['produkty']);
+		unset($_SESSION['ilosci']);
+    
+
+} 
+if (isset($_POST['usunindex'])) {
+    unset($_SESSION['produkty'][$_POST['index']]);
+    unset($_SESSION['ilosci'][$_POST['index']]);
+}
+
+			  		  
+	} catch(PDOException $e) {
+        echo '😵';}
+?>
     </div>
     <div class="separator"></div>
     <div class="container-fluid">
     <h3> Koszyk </h3>
-    <table>
-        <th> Nazwa produktu </th>
-        <th> Cena </th>
-        <th> Ilość </th>
         <?php 
+
         try{
             $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $ilosci=array();
-            $length = count($_SESSION['ilosci']);
-            $y =0;
-            foreach($_SESSION['ilosci'] as $i){
-                $y++;
-                $ilosci[$y]=$i;
-            }
-            $x =0;
-            foreach ($_SESSION['produkty'] as $key) {
-                $stmt = $pdo->query('SELECT nazwa,cena FROM produkty WHERE id_produktu LIKE "'.$key.'"');
-                echo "<tr>";
-                $x++;
-                foreach ($stmt as $row) {
-                    echo "<td>".$row['nazwa']."</td>";
-                    echo "<td>".$row['cena']."</td>";
-                    echo "<td>".$ilosci[$x]."</td>";
-                }
-                echo "</tr>";
-            }
-                
+           
+			if (empty($_SESSION['produkty'])){
+				echo '<h2>Koszyk jest pusty. :^(</h2>';
+			}
+			else {
+				echo'<table>
+				<th> Nazwa produktu </th>
+				<th> Cena </th>
+				<th> Ilość </th>';
+				
+				foreach ($_SESSION['produkty'] as $key => $val) {
+					$stmt = $pdo->query('SELECT nazwa,cena FROM produkty WHERE id_produktu LIKE "'.$val.'"');
+					echo "<tr>";
+					foreach ($stmt as $row) {
+						echo "<td>".$row['nazwa']."</td>";
+						echo "<td>".$row['cena']."</td>";
+						echo "<td>".$_SESSION['ilosci'][$key]."</td>";
+					}
+					echo '<td><form method="post"><input type="hidden" value="'.$key.'" name="index"><button type="submit" name="usunindex" class="btn btn-primary text-center" style="width:30%;margin: 0px auto;font-size:18px;">Usuń produkt</button></td></form></tr>';
+				}
+}
+				echo'</table>
+                        <form method="post">
+                        <button type="submit" name="usun" value="usun" class="btn btn-primary text-center" style="width:10%;margin: 0px auto;font-size:18px;">Wyczyść koszyk</button>
+                        <a class="btn btn-primary text-center" style="width:10%;margin: 0px auto;font-size:18px;" data-bs-toggle="modal" data-bs-target="#staticBackdrop3">Przejdź do transakcji</a>
+                </form>';
         } catch(PDOException $e) {
             echo '😵';
         }
 ?>
-</table>
 
 </div>
+<form method="post">
+  <div class="modal fade" id="staticBackdrop3" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+      <h4 class="modal-title" id="staticBackdropLabel">Zakup przedmiotu</h4>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background-color:rgba(0, 255, 127, 0.75);"></button>
+      </div>
+      <div class="modal-body">
+  <div class="col-75">
+    <div class="container">
+      <form action="/action_page.php">
+        <div class="row">
+          <div class="col-50">
+            <h3>Dane</h3>
+                <input class="form-control mt-3" type="text" maxlength="48" name="nick" id="userFormNick" placeholder="Nick" required>
+                <input class="form-control mt-3" type="email" maxlength="75" name="email" id="userFormEmail" placeholder="E-mail" required>
+                </div>
+          </div>
+          <div class="col-50">
+            <h3>Płatność</h3>
+                <input class="form-control mt-3" type="number" maxlength="48" name="karta" id="pay1" placeholder="Nr karty" required>
+                <div style="display: inline-flex " >
+                <input class="form-control m-3" type="text" maxlength="75" name="wygasniecie" id="pay2" placeholder="Miesiąc wygaśnięcia" required>
+                <input class="form-control m-3" type="text" maxlength="75" name="wygasniecie2" id="pay2" placeholder="Rok wygaśnięcia" required>
+                </div>
+                <input class="form-control mt-3" type="text" maxlength="48" name="nick" id="pay3" placeholder="Numer CCV" required>
+            </div>
+          </div>
+        </div>
+        <label>
+          <input type="checkbox" checked="checked" name="sameadr"> Wyślij potwierdzenie zakupu na email
+        </label><br>
+        <button type="submit" class="btn btn-primary text-center" style="width:25%;margin: 0px auto;font-size:18px;" name="zakup">Kup produkt</button>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</form>
 <script src="../resources/scroll.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
