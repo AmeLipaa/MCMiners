@@ -1,21 +1,24 @@
+-- --------------------------------------------------------
+
 --
 -- Struktura tabeli dla tabeli `kategorie_prod`
 --
 
 CREATE TABLE `kategorie_prod` (
   `id_kategorii` int UNSIGNED NOT NULL,
-  `nazwa` varchar(64) NOT NULL
+  `nazwa` varchar(64) NOT NULL,
+  `typ` tinyint UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Zrzut danych tabeli `kategorie_prod`
 --
 
-INSERT INTO `kategorie_prod` (`id_kategorii`, `nazwa`) VALUES
-(1, 'Uprawnienia'),
-(2, 'Efekty AFK'),
-(3, 'Rangi'),
-(4, 'Przedmioty/waluta w grze');
+INSERT INTO `kategorie_prod` (`id_kategorii`, `nazwa`, `typ`) VALUES
+(1, 'Uprawnienia', 1),
+(2, 'Efekty AFK', 1),
+(3, 'Rangi', 2),
+(4, 'Przedmioty/waluta w grze', 0);
 
 -- --------------------------------------------------------
 
@@ -36,12 +39,14 @@ CREATE TABLE `klienci` (
 --
 
 INSERT INTO `klienci` (`id_klienta`, `nick`, `email`, `haslo`, `admin`) VALUES
-(1, 'ABEE555', 'abe5@gmail.com', 'fb864e34f555914f98b39f3fc3f475e7ca59440e941dcc5d889907748a6d853ee62e2328dd5ddec59041c40ae1ee4fdadefd8c4af607c5dcdeb18abd62d7c0c7', 1),
+(1, 'ABEE555', 'abe5@gmail.com', 'e2491bff2d8d461a2584bcfcecbf3de1e5c9df48583503416a95e332e00355648285e86a19b732201e542bce322b35f98e8b46012024f69c391b5ba7487b0d1b', 1),
 (2, 'Saturri', 'saturri@gmail.com', '7d37ee22feaeac55976b81eb879930b9eb92c0b5d7e84558ff6c1d34c7c488553f0327120fc8042bbd916fd37e3b2d9b5c5830100c25bdf07f60745694aa6d53', 0),
 (3, 'smolgayplant', 'sgplant@gmail.com', '477f1571924e3b6ea4e9111ae2d749ada8a6e11842bcb1ad92e1cafdcda7ea0f81cc950504b24967972342d2d67c27ff29956daebe6f1ef6731db93115b44da6', 1),
 (4, 'Herobrine', 'NULL', 'NULL', 0),
 (5, 'Flixanoa', 'feffington@gmail.com', '6dcbe3b1e13a9749e1fe9627cedb881a7844536608d78b973df2b364583bd11b7379e131c0f88eb155ed6dd17b3f9253cdfdc6dd709901d0c6c60f0ac0cf2755', 0),
-(6, 'celaakpl', 'celaak@gmail.com', '5e55a1bc2cb5c0cd879509f42c201f11377db3e62b0dd93cb505549c17a8fad084d42a4c4872839cceb6d4fc29b3c54f2d056e31440fa5bb4097c2a0b2c3e641', 1);
+(6, 'celaakpl', 'celaak@gmail.com', '5e55a1bc2cb5c0cd879509f42c201f11377db3e62b0dd93cb505549c17a8fad084d42a4c4872839cceb6d4fc29b3c54f2d056e31440fa5bb4097c2a0b2c3e641', 1),
+(7, 'Jacob_Kappowicz', 'NULL', 'NULL', 0),
+(8, '_PanSmietanka_', 'panpikus85@interia.pl', '97f80df44c8647926d39466520a7d48282e3ff89beb267fed6e0790e78c72d9829fbd59d7f7db7f7f4ca1fdbcdb2e847e7427452d629e66e149655c41f4f3d61', 0);
 
 -- --------------------------------------------------------
 
@@ -135,7 +140,7 @@ CREATE TABLE `transakcja` (
 --
 
 INSERT INTO `transakcja` (`id_transakcji`, `id_klienta`, `data`, `realizacja`) VALUES
-(1, 6, '2022-12-12', 0);
+(1, 7, '2022-12-12', 0);
 
 -- --------------------------------------------------------
 
@@ -157,8 +162,11 @@ CREATE TABLE `wpisy` (
 
 INSERT INTO `wpisy` (`id_wpisu`, `id_klienta`, `tytul`, `tresc`, `data`) VALUES
 (1, 1, 'Otwarcie nowej edycji serwera MinersMC!', 'Zapraszamy na otwarcie nowej, a zarazem pierwszej edycji serwera MinersMC już w tą sobotę 3 grudnia o godzinie 19:00. Wersja gry - \'1.16\'.', '2022-11-27'),
-(2, 6, 'NIENAWIDZE', 'nienawidze matematyki straszna NUDA! trzymajcie sie w tym burdelu pozdro 300', '2022-11-29'),
-(3, 6, 'Dużo, dużo znaków!!!', 'Fortress Faceoffs presents to you a tale as old as time: A crew of mercs fighting for their lives to escape the grasp of Hell!\r\n\r\n\r\nHappens to the best of us, of course. In a voyage to uncover a cache of hidden treasure within the murky and treacherous waters of Michiganne, a ship of five drunken savages (that\'\'s you!) was caught in the eye of a treacherous storm and cast out to sea. This invoked the presence of a being only spoken of in shanties... Having been fed up with the sudden delivery of dead meat on his doorstep, THE DEVIL!!! himself forced these brutes back onto their boats and had them float across the River Styx so that he could be left in peace. After regaining consciousness and adjusting their one good eye, these men realized they weren\'\'t alone on their quest! An amassment of ships was on the same track, all with the goal of claiming bounty! Armed with cannons and ready to charge, these scurvy dogs must defeat all the other swashbucklin\'\' sailors and make it to the treasure alone! With the sound of explosions and slurred screams from every direction, THE DEVIL!!! may never get his rest...\r\n\r\n\r\nSign up your shipmates today for Fortress Faceoffs\'\' 6th event and become known as the best crew in history! The departure begins Oct. 14th @ 13:00 CEST (for Europe) / Oct. 21st @ 1:00pm EDT (for the Americas) and will last around 3 days each. For more information about event rules, prizes, and more, join the Fortress Faceoffs Discord and double-donk your way out of the deep sea! The top 8 crews will be broadcasted live, so perform your best or get washed up!', '2022-11-16');
+(2, 6, 'NIENAWIDZE', 'nienawidze matematyki straszna NUDA! trzymajcie sie w tym pierdolniku pozdro 300', '2022-11-29'),
+(3, 6, 'Dużo, dużo znaków!!!', 'Fortress Faceoffs presents to you a tale as old as time: A crew of mercs fighting for their lives to escape the grasp of Hell!\r\n\r\n\r\nHappens to the best of us, of course. In a voyage to uncover a cache of hidden treasure within the murky and treacherous waters of Michiganne, a ship of five drunken savages (that\'\'s you!) was caught in the eye of a treacherous storm and cast out to sea. This invoked the presence of a being only spoken of in shanties... Having been fed up with the sudden delivery of dead meat on his doorstep, THE DEVIL!!! himself forced these brutes back onto their boats and had them float across the River Styx so that he could be left in peace. After regaining consciousness and adjusting their one good eye, these men realized they weren\'\'t alone on their quest! An amassment of ships was on the same track, all with the goal of claiming bounty! Armed with cannons and ready to charge, these scurvy dogs must defeat all the other swashbucklin\'\' sailors and make it to the treasure alone! With the sound of explosions and slurred screams from every direction, THE DEVIL!!! may never get his rest...\r\n\r\n\r\nSign up your shipmates today for Fortress Faceoffs\'\' 6th event and become known as the best crew in history! The departure begins Oct. 14th @ 13:00 CEST (for Europe) / Oct. 21st @ 1:00pm EDT (for the Americas) and will last around 3 days each. For more information about event rules, prizes, and more, join the Fortress Faceoffs Discord and double-donk your way out of the deep sea! The top 8 crews will be broadcasted live, so perform your best or get washed up!', '2022-11-16'),
+(4, 1, 'Celaku, co ty kombinujesz?', 'Co celak wyprawia o godzinie 02:07', '2022-12-07'),
+(5, 6, 'albert albert albert 3zł', 'bottom text', '2022-12-03'),
+(6, 1, 'Celak chodź tutaj do mnie', 'juz', '2022-12-05');
 
 --
 -- Indeksy dla zrzutów tabel
@@ -233,7 +241,7 @@ ALTER TABLE `kategorie_prod`
 -- AUTO_INCREMENT dla tabeli `klienci`
 --
 ALTER TABLE `klienci`
-  MODIFY `id_klienta` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_klienta` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT dla tabeli `produkty`
@@ -269,7 +277,7 @@ ALTER TABLE `transakcja`
 -- AUTO_INCREMENT dla tabeli `wpisy`
 --
 ALTER TABLE `wpisy`
-  MODIFY `id_wpisu` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_wpisu` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Ograniczenia dla zrzutów tabel
@@ -307,3 +315,7 @@ ALTER TABLE `transakcja`
 ALTER TABLE `wpisy`
   ADD CONSTRAINT `wpisy_ibfk_1` FOREIGN KEY (`id_klienta`) REFERENCES `klienci` (`id_klienta`);
 COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
