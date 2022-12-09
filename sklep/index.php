@@ -273,9 +273,9 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                 if (isset($_POST['filter'])) {
                     $whichprod = $_POST['which-product'];
                     $sorting = $_POST['sort'];
-                    $stmt = $pdo->query('SELECT * FROM produkty AS p INNER JOIN kategorie_prod AS k ON p.id_kategorii = k.id_kategorii WHERE nazwa LIKE "'.$whichprod.'%"'.$sorting.';');
+                    $stmt = $pdo->query('SELECT id_produktu, p.nazwa AS pname, cena, opis, czy_promocyjny, obraz, p.id_kategorii AS pid, k.id_kategorii AS cid, k.nazwa AS cname, typ FROM produkty AS p INNER JOIN kategorie_prod AS k ON p.id_kategorii = k.id_kategorii WHERE p.nazwa LIKE "'.$whichprod.'%"'.$sorting.';');
                 } else {
-                    $stmt = $pdo->query('SELECT * FROM produkty AS p INNER JOIN kategorie_prod AS k ON p.id_kategorii = k.id_kategorii;');
+                    $stmt = $pdo->query('SELECT id_produktu, p.nazwa AS pname, cena, opis, czy_promocyjny, obraz, p.id_kategorii AS pid, k.id_kategorii AS cid, k.nazwa AS cname, typ FROM produkty AS p INNER JOIN kategorie_prod AS k ON p.id_kategorii = k.id_kategorii;');
                 }
 
                 foreach ($stmt as $row) {
@@ -283,7 +283,7 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                     <div class="card" style="width:400px;">
                         <img class="card-img-top produkt'.$row['id_produktu'].'" src="'.$row['obraz'].'" alt="Card image">
                         <div class="card-body">
-                            <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['p.nazwa'].'</h3>
+                            <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['pname'].'</h3>
                             <p class="card-text produkt'.$row['id_produktu'].'" style="font-size:22px;">'.$row['cena'].' zł</p>
                             <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['opis'].'">
                              <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['typ'].'">
