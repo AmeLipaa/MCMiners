@@ -1,6 +1,80 @@
 <?php
 session_start();
+
 require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
+
+if(isset($_POST['add'])){
+    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+    $pdo -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $stmt = $pdo -> query('SELECT cena FROM produkty WHERE id_produktu = '.$_POST['prodid'].';');
+    foreach($stmt as $row){
+        $cena = $row['cena'];
+    }
+
+    $x = false;
+    if(isset($_SESSION['ilosci'])){ //sprawdza czy już istnieje w sesji zmienna ilosci i jeśli tak to przypisuje istniejącą tabelę do zmiennej lokalnej
+        $ilosci = $_SESSION['ilosci'];
+    }
+    if(isset($_SESSION['ilosci'])){ //sprawdza czy już istnieje w sesji zmienna ilosci i jeśli tak to przypisuje istniejącą tabelę do zmiennej lokalnej
+        $ceny = $_SESSION['ceny'];
+    }
+    if(isset($_SESSION['produkty'])){ //sprawdza czy już istnieje w sesji zmienna produkty i jeśli tak to przypisuje istniejącą tabelę do zmiennej lokalnej
+        $produkty = $_SESSION['produkty'];
+        foreach($produkty as $key => $val){
+            if($val == $_POST['prodid']){
+                if($_POST['prodtype'] == 0){
+                    $ilosci[$key] += $_POST['ilosc']; //dopisuje do już istniejącej wartości w tablicy w sesji
+                }
+                $x = true;
+            }
+        }
+    }
+    if($x == false){
+        $produkty[] = $_POST['prodid']; //dopisuje do zmiennej lokalnej
+        $ceny[] = $cena;
+        if($_POST['prodtype'] == 0){
+            $ilosci[] = $_POST['ilosc']; //dopisuje do zmiennej lokalnej
+        } else {
+            $ilosci[] = 1; //dopisuje do zmiennej lokalnej
+        }
+    }
+    $_SESSION['produkty'] = $produkty; //aktualizuje zmienną z sesji
+    $_SESSION['ilosci'] = $ilosci; //aktualizuje zmienną z sesji
+    $_SESSION['ceny'] = $ceny; //aktualizuje zmienną z sesji
+
+    echo '<div class="alert alert-success d-flex align-items-center" role="alert" id="jupi">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cart-check" viewBox="0 0 16 16">
+                      <path d="M11.354 6.354a.5.5 0 0 0-.708-.708L8 8.293 6.854 7.146a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"/>
+                      <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1H.5zm3.915 10L3.102 4h10.796l-1.313 7h-8.17zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+					<div>
+						Pomyślnie dodano produkt do koszyka!
+					</div>
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=index.php; return false;"></button>
+					</div>';
+}
+if($_GET['x'] == 1){
+    echo '<div class="alert alert-success d-flex align-items-center" role="alert" id="jupi">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
+          <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5ZM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1Zm0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132Z"/>
+        </svg>
+        <div>
+                Zamówienie zostało złożone!
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=index.php; return false;"></button>
+        </div>';
+} else if($_GET['x'] == 2){
+    echo '<div class="alert alert-danger d-flex align-items-center" role="alert" id="jupi">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-question-octagon" viewBox="0 0 16 16">
+          <path d="M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353L4.54.146zM5.1 1 1 5.1v5.8L5.1 15h5.8l4.1-4.1V5.1L10.9 1H5.1z"/>
+          <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+        </svg>
+        <div>
+                Wystąpił problem z twoim zamówieniem.
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=index.php; return false;"></button>
+        </div>';
+}
 ?>
 <!DOCTYPE html>
 <html lang="pl">
@@ -177,6 +251,17 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
             height: 30px;
             vertical-align: middle;
         }
+        .alert{
+            color: black;
+            margin-bottom: 0px !important;
+        }
+        .alert-success{
+            background-color: #00FF7F;
+            border-color: #00b359;
+        }
+        .alert svg{
+            margin-right: 15px;
+        }
     </style>
 
 </head>
@@ -234,7 +319,7 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                                 <a href="./konto/panel.php" class="btn btn-primary text-center w-100 mt-1" data-bs-target="_self">Profil</a>
                             </div>
                             <div class="col-12 col-md-2">
-                                <a href="./konto/koszyk.php" class="btn btn-primary text-center w-100 mt-1" data-bs-target="_self">Koszyk</a>
+                                <a href="koszyk.php" class="btn btn-primary text-center w-100 mt-1" data-bs-target="_self">Koszyk</a>
                             </div>
                             <div class="col-4 d-sm-none d-sm-none d-md-block"></div>
                         </div>';
@@ -328,7 +413,9 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background-color:rgba(0, 255, 127, 0.75);"></button>
                 </div>
                 <div class="modal-body">
+                    <form method="post">
                     <input type="hidden" value="" id="prodid" name="prodid">
+                        <input type="hidden" value="" id="prodtype" name="prodtype">
                     <div style="margin:auto;width:fit-content">
                         <img src="" style="width:250px;height:250px;" id="modalimg">
                     </div>
@@ -339,7 +426,8 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                    <button type="button" class="btn btn-primary">Dodaj do koszyka</button>
+                    <button type="submit" name="add" class="btn btn-primary">Dodaj do koszyka</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -402,6 +490,7 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
     var desc = document.getElementById("modaldesc")
     var img = document.getElementById("modalimg");
     var prodid = document.getElementById("prodid");
+    var prodtyp = document.getElementById("prodtype");
     var ilosc = document.getElementById("prodilosc");
     function showProd(id){
         img.src = document.getElementsByClassName("produkt"+id)[0].src;
@@ -416,6 +505,7 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
             ilosc.style.display = "none";
             ilosc.disabled = true;
         }
+        prodtyp.value = document.getElementsByClassName("produkt"+id)[4].value;
         prodid.value = id;
         ogprice = Number(price.innerText.slice(0, -3));
     }
