@@ -50,45 +50,61 @@ if(isset($_POST['edit'])){
     <link href="https://fonts.googleapis.com/css2?family=Mukta&family=Nunito:wght@200;300;400&family=Work+Sans&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
-    <script>
+<script> 
 
-        $(document).ready(function(){
+	$(document).ready(function(){
+	
+	$(".rozwijane_kolumny").hide();
 
-            $(".rozwijane_kolumny").hide();
-
-            $(".wyswietlane_kolumny").click(function(){
-                var index = $(".wyswietlane_kolumny").index(this);
-                if(index==0)
-                {
-                    $(".rozwijane_kolumny").eq(index).show("slow");
-                }
-                else if(index==1)
-                {
-                    $(".rozwijane_kolumny").eq(index).show("slow");
-                    $(".rozwijane_kolumny").eq(index+1).show("slow");
-                }
-                else if(index%2==0)
-                {
-                    $(".rozwijane_kolumny").eq(index+index/2).show("slow");
-                }
-                else
-                {
-                    $(".rozwijane_kolumny").eq(index+parseInt(index/2)).show("slow");
-
-                    $(".rozwijane_kolumny").eq(index+parseInt(index/2)+1).show("slow");
-                }
-
-            });
-
-            $(".wyswietlane_kolumny").dblclick(function(){
-                $(".rozwijane_kolumny").hide("slow");
-            });
-
-            $(".rozwijane_kolumny").dblclick(function(){
-                $(".rozwijane_kolumny").hide("slow");
-            });
-        });
-    </script>
+    $(".wyswietlane_kolumny").click(function(){
+		var index = $(".wyswietlane_kolumny").index(this);
+		if(index==0)
+		{
+			$(".rozwijane_kolumny").eq(index).show("slow");
+		}
+		else if(index==1)
+		{
+			$(".rozwijane_kolumny").eq(index).show("slow");
+			$(".rozwijane_kolumny").eq(index+1).show("slow");
+		}
+		else if(index%2==0)
+		{
+			$(".rozwijane_kolumny").eq(index+index/2).show("slow");
+		}
+		else
+		{
+			$(".rozwijane_kolumny").eq(index+parseInt(index/2)).show("slow");
+			
+			$(".rozwijane_kolumny").eq(index+parseInt(index/2)+1).show("slow");
+		}
+        
+    });
+		
+    $(".wyswietlane_kolumny").dblclick(function(){
+		var index = $(".wyswietlane_kolumny").index(this);
+		if(index==0)
+		{
+			$(".rozwijane_kolumny").eq(index).hide("slow");
+		}
+		else if(index==1)
+		{
+			$(".rozwijane_kolumny").eq(index).hide("slow");
+			$(".rozwijane_kolumny").eq(index+1).hide("slow");
+		}
+		else if(index%2==0)
+		{
+			$(".rozwijane_kolumny").eq(index+index/2).hide("slow");
+		}
+		else
+		{
+			$(".rozwijane_kolumny").eq(index+parseInt(index/2)).hide("slow");
+			
+			$(".rozwijane_kolumny").eq(index+parseInt(index/2)+1).hide("slow");
+		}
+        
+    });
+});
+</script>
 
     <style>
         body{
@@ -222,8 +238,11 @@ if(isset($_POST['edit'])){
         }
         table{
             text-align: center;
-            width: 100%;
             margin-top: 10px;
+        }
+        th{
+            min-width: fit-content;
+            width: 20%;
         }
         td{
             min-width: fit-content;
@@ -291,48 +310,48 @@ if(isset($_POST['edit'])){
     <h2 id="gridtitle" class="d-none d-sm-block"></h2>
 
     <div class='panel-grid'>
-        <a class='big-btn box-shadow' data-bs-toggle='modal' data-bs-target='#userForm'>
-            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-chat-right-quote-fill" viewBox="0 0 16 16">
-                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2z"/>
+                <a class='big-btn box-shadow' data-bs-toggle='modal' data-bs-target='#userForm'>
+                 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-chat-right-quote-fill" viewBox="0 0 16 16">
+                <path d="M16 2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9.586a1 1 0 0 1 .707.293l2.853 2.853a.5.5 0 0 0 .854-.353V2zM7.194 4.766c.087.124.163.26.227.401.428.948.393 2.377-.942 3.706a.446.446 0 0 1-.612.01.405.405 0 0 1-.011-.59c.419-.416.672-.831.809-1.22-.269.165-.588.26-.93.26C4.775 7.333 4 6.587 4 5.667 4 4.747 4.776 4 5.734 4c.271 0 .528.06.756.166l.008.004c.169.07.327.182.469.324.085.083.161.174.227.272zM11 7.073c-.269.165-.588.26-.93.26-.958 0-1.735-.746-1.735-1.666 0-.92.777-1.667 1.734-1.667.271 0 .528.06.756.166l.008.004c.17.07.327.182.469.324.085.083.161.174.227.272.087.124.164.26.228.401.428.948.392 2.377-.942 3.706a.446.446 0 0 1-.613.01.405.405 0 0 1-.011-.59c.42-.416.672-.831.81-1.22z"></path>
             </svg>
         </a>
         <a class='big-btn box-shadow' data-bs-toggle='modal' data-bs-target='#userForm2'>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-card-checklist" viewBox="0 0 16 16" height="100" width="100">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-card-checklist" viewBox="0 0 16 16" height="100" width="100">
                 <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"></path>
                 <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"></path>
             </svg>
             </svg>
         </a>
-        <a class="big-btn box-shadow" href="">
+        <a class="big-btn box-shadow" href="../koszyk.php">
             <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-basket2-fill" viewBox="0 0 16 16">
                 <path d="M5.929 1.757a.5.5 0 1 0-.858-.514L2.217 6H.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h.623l1.844 6.456A.75.75 0 0 0 3.69 15h8.622a.75.75 0 0 0 .722-.544L14.877 8h.623a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1.717L10.93 1.243a.5.5 0 1 0-.858.514L12.617 6H3.383L5.93 1.757zM4 10a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm3 0a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm4-1a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1z"></path>
             </svg>
         </a>
-    </div>
-    <div class="modal fade" id="userForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            </div>
+            <div class="modal fade" id="userForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Edycja klienta</h5>
+                <h5 class="modal-title" id="modalTitle">Edycja klienta</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="post">
                     <div class="modal-body">
-                        <?php
-                        try{
-                            $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
-                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                            $stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
-                            foreach ($stmt as $row) {
-                                echo "<input class='form-control mt-3' style='display:none' required name='ID' id='userFormID' value ='".$row['id_klienta']."'>";
-                                echo "<input class='form-control mt-3' required type='text' maxlength='48' name='nick' id='userFormNick' placeholder='Nick' value ='".$row['nick']."'>";
-                                echo "<input class='form-control mt-3' required type='email' maxlength='64' name='email' id='userFormEmail' placeholder='E-mail'value ='".$row['email']."'>";
-                            }
-                        } catch(PDOException $e) {
-                            echo '😵';
-                        }
-                        ?>
-                    </div>
+                    <?php
+                try{
+                    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
+                    foreach ($stmt as $row) {
+                    echo "<input class='form-control mt-3' style='display:none' required name='ID' id='userFormID' value ='".$row['id_klienta']."'>";
+                    echo "<input class='form-control mt-3' required type='text' maxlength='48' name='nick' id='userFormNick' placeholder='Nick' value ='".$row['nick']."'>";
+                    echo "<input class='form-control mt-3' required type='email' maxlength='64' name='email' id='userFormEmail' placeholder='E-mail'value ='".$row['email']."'>";
+                    }
+                } catch(PDOException $e) {
+                    echo '😵';
+                }
+                ?>
+                 </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
                         <button id="confirmRemove" name="remove" type="submit" class="btn btn-primary">
@@ -342,50 +361,50 @@ if(isset($_POST['edit'])){
                             Usuń
                         </button>
                         <?php
-                        try{
-                            $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
-                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                            $stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
-                            foreach ($stmt as $row) {
-                                echo "<button id='confirmEdit' onclick='edit(". $row['id_klienta'].")' name='edit' type='submit' class='btn btn-primary'>";
-                            } }catch(PDOException $e) {
-                            echo '😵';
-                        }
-                        ?>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                            <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                        </svg>
-                        Zapisz
+                try{
+                    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
+                    foreach ($stmt as $row) {
+                        echo "<button id='confirmEdit' onclick='edit(". $row['id_klienta'].")' name='edit' type='submit' class='btn btn-primary'>";
+                    } }catch(PDOException $e) {
+                        echo '😵';
+                    }
+                    ?>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                            </svg>
+                            Zapisz
                         </button>
                 </form>
             </div>
         </div>
     </div>
-</div>
-<div class='panel-grid'>
+    </div>
+      <div class='panel-grid'>
 
-</div>
-<div class="modal fade" id="userForm2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Historia transakcji</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal fade" id="userForm2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Historia transakcji</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                    <div class="modal-body">
                 <?php
                 try{
+                    
                     $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                     $stmt = $pdo->query('SELECT * FROM transakcja WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
                     $stmt2 = $pdo->query('SELECT * FROM szczegoly_transakcji inner join transakcja on szczegoly_transakcji.id_transakcji=transakcja.id_transakcji inner join produkty on szczegoly_transakcji.id_produktu = produkty.id_produktu WHERE transakcja.id_klienta LIKE "'.$_SESSION['user'].'"');
-                    echo "<table><tr><th> Numer zamówienia </th>";
-                    echo "<th> Data </th>";
-                    echo "<th> Status</th></tr></table>";
+                    echo "<table><tr style='font-size: 120%'><th> Numer zamówienia </th>";
+                    echo "<div><th> Data </th>";
+                    echo "<th> Status</th>";
+                    echo "</tr>";
                     foreach ($stmt as $row) {
-                        echo "<table class='wyswietlane_kolumny'>";
-
-                        echo "<tr><td>".$row['id_transakcji']."</td>";
+                        echo "<table><tr class='wyswietlane_kolumny' style='border: 3px solid; font-size: 120%'><td>".$row['id_transakcji']."</td>";
                         echo "<td>".$row['data']."</td>";
                         echo "<td>";
                         if($row['realizacja']==1){
@@ -393,28 +412,32 @@ if(isset($_POST['edit'])){
                         } else {
                             echo "Nie zrealizowano";
                         }
-                        $stmt3 = $pdo->query('select produkty.nazwa, produkty.cena, szczegoly_transakcji.ilosc from produkty inner join szczegoly_transakcji on produkty.id_produktu=szczegoly_transakcji.id_produktu inner join transakcja on szczegoly_transakcji.id_transakcji = transakcja.id_transakcji where szczegoly_transakcji.id_transakcji LIKE "'.$row['id_transakcji'].'" and transakcja.id_klienta LIKE "'.$_SESSION['user'].'"');
-                        echo "</td></tr>";
-                        echo "</table>";
-                        echo "<table class='rozwijane_kolumny'><th>Produkt</th>";
+                        $stmt3 = $pdo->query('select produkty.nazwa, produkty.cena, szczegoly_transakcji.ilosc from produkty inner join szczegoly_transakcji on produkty.id_produktu=szczegoly_transakcji.id_produktu inner join transakcja on szczegoly_transakcji.id_transakcji = transakcja.id_transakcji where szczegoly_transakcji.id_transakcji LIKE "'.$row['id_transakcji'].'" and transakcja.id_klienta LIKE "'.$_SESSION['user'].'"');    
+                        echo "</td></tr></table>";
+                        echo "<table style=' border: 1px solid; border-color: gray; width: 100%;' class='rozwijane_kolumny'><th>Produkt</th>";
                         echo "<th>Cena</th>";
                         echo "<th>Ilość</th>";
-
+                        $razem = 0.0;
                         foreach ($stmt3 as $row) {
-                            echo "<tr><td>".$row['nazwa']."</td>";
-                            echo "<td>".$row['cena']."</td>";
-                            echo "<td>".$row['ilosc']."</td></tr>";
-                        }
+                        echo "<tr><td>".$row['nazwa']."</td>";
+                        echo "<td>".$row['cena']." zł</td>";
+                        echo "<td>".$row['ilosc']."</td></tr>";
+                        $razem += $row['cena'] * $row['ilosc'];
+                        echo "<tr style='border: 1px solid; border-color: green;'><td style='text-align: right'>Wartość zamówienia: ";
+                        echo "<td>" .$razem." zł</td></tr>";
                         echo "</table>";
-
+                        
                     }
+                    
+                }
+                echo "</table>";
                     $stmt->closeCursor();
                 } catch(PDOException $e) {
                     echo '😵';
                 }
 
                 ?>
-
+            
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
@@ -426,14 +449,14 @@ if(isset($_POST['edit'])){
 </div>
 <script>
     var title = document.getElementById("gridtitle");
-    var names = ["Edycja profilu","Historia zakupów","Koszyk"];
+    var names = ["Edycja klienta","Historia transakcji","Koszyk"];
     var elements = document.getElementsByClassName("big-btn");
     var rozwijane_kolumny = document.getElementsByClassName("rozwijane_kolumny");
     var wyswietlane_kolumny = document.getElementsByClassName("wyswietlane_kolumny");
 
     for(let i = 0; i < elements.length; i++){
         elements[i].addEventListener('mouseenter', function(){
-            title.innerText = names[i];
+           title.innerText = names[i];
         });
         elements[i].addEventListener('mouseleave', function(){
             title.innerText = "";
