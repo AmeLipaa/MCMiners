@@ -237,6 +237,7 @@ if(isset($_POST['edit'])){
             display: block;
         }
         table{
+            border-radius: 25px;
             text-align: center;
             margin-top: 10px;
         }
@@ -248,14 +249,16 @@ if(isset($_POST['edit'])){
             min-width: fit-content;
             width: 20%;
         }
+        tr{
+            border-radius: 25px;
+        }
+        
         tr:hover{
             background-color: #42445A;
             color: #00FF7F;
             transition: 0.3s;
         }
     </style>
-    </style>
-
 </head>
 <body data-bs-spy="scroll" data-bs-target="#navigacja">
 
@@ -404,7 +407,7 @@ if(isset($_POST['edit'])){
                     echo "<th> Status</th>";
                     echo "</tr>";
                     foreach ($stmt as $row) {
-                        echo "<table><tr class='wyswietlane_kolumny' style='border: 3px solid; font-size: 120%'><td>".$row['id_transakcji']."</td>";
+                        echo "<table><tr class='wyswietlane_kolumny' style='border-radius: 25px; border: 3px solid;  font-size: 120%'><td >".$row['id_transakcji']."</td>";
                         echo "<td>".$row['data']."</td>";
                         echo "<td>";
                         if($row['realizacja']==1){
@@ -414,7 +417,7 @@ if(isset($_POST['edit'])){
                         }
                         $stmt3 = $pdo->query('select produkty.nazwa, produkty.cena, szczegoly_transakcji.ilosc from produkty inner join szczegoly_transakcji on produkty.id_produktu=szczegoly_transakcji.id_produktu inner join transakcja on szczegoly_transakcji.id_transakcji = transakcja.id_transakcji where szczegoly_transakcji.id_transakcji LIKE "'.$row['id_transakcji'].'" and transakcja.id_klienta LIKE "'.$_SESSION['user'].'"');    
                         echo "</td></tr></table>";
-                        echo "<table style=' border: 1px solid; border-color: gray; width: 100%;' class='rozwijane_kolumny'><th>Produkt</th>";
+                        echo "<table style=' border: 1px solid; border-color: gray; border-radius: 25px; width: 100%;' class='rozwijane_kolumny'><th>Produkt</th>";
                         echo "<th>Cena</th>";
                         echo "<th>Ilość</th>";
                         $razem = 0.0;
@@ -423,8 +426,9 @@ if(isset($_POST['edit'])){
                         echo "<td>".$row['cena']." zł</td>";
                         echo "<td>".$row['ilosc']."</td></tr>";
                         $razem += $row['cena'] * $row['ilosc'];
-                        echo "<tr style='border: 1px solid; border-color: green;'><td style='text-align: right'>Wartość zamówienia: ";
-                        echo "<td>" .$razem." zł</td></tr>";
+                        echo "<tr style='border: 1px solid; border-color: green; border-radius: 25px;'><td style='text-align: right'>Wartość zamówienia: ";
+                        echo "<td>" .$razem." zł</td>";
+                        echo "<td></td></tr>";
                         echo "</table>";
                         
                     }
