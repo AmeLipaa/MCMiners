@@ -248,13 +248,26 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                 </h1>
                 <form method="post">
                     <input maxlength="64" placeholder="Nazwa" name="which-product" id="search">
-                    <select name='sort' class="forminput">
-                        <option value='' selected='' disabled=''>Sortowanie</option>
-                        <option value=''>Domyślne</option>
-                        <option value=' ORDER BY cena'>Wg. ceny ↑</option>
-                        <option value=' ORDER BY cena DESC'>Wg. ceny ↓</option>
-                        <option value=' ORDER BY nazwa'>Wg. nazwy A-Z</option>
-                        <option value=' ORDER BY nazwa DESC'>Wg. nazwy Z-A</option>
+                    <?php
+                    echo '<select name="kat" class="forminput">';
+                    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                    $pdo -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $stmt = $pdo -> query('SELECT id_kategorii, nazwa FROM kategorie_prod;');
+                    echo '<option value="0" selected="" disabled>Kategoria</option>';
+                    echo '<option value="0">Wszystkie</option>';
+                    foreach($stmt as $row){
+                        echo '<option value="'.$row['id_kategorii'].'">'.$row['nazwa'].'</option>';
+                    }
+                    $stmt -> closeCursor();
+                    echo '</select>';
+                    ?>
+                    <select name="sort" class="forminput">
+                        <option value='0' selected='' disabled=''>Sortowanie</option>
+                        <option value='0'>Domyślne</option>
+                        <option value='1'>Wg. ceny ↑</option>
+                        <option value='2'>Wg. ceny ↓</option>
+                        <option value='3'>Wg. nazwy A-Z</option>
+                        <option value='4'>Wg. nazwy Z-A</option>
                     </select>
                     <button class="btn btn-outline-primary search" type="submit" name="filter">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
@@ -267,13 +280,17 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
             <div class="row">
             <?php
             try{
+                $sortarr = ['',' ORDER BY cena',' ORDER BY cena DESC',' ORDER BY pname',' ORDER BY pname DESC'];
                 $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
                 if (isset($_POST['filter'])) {
                     $whichprod = $_POST['which-product'];
-                    $sorting = $_POST['sort'];
-                    $stmt = $pdo->query('SELECT id_produktu, p.nazwa AS pname, cena, opis, czy_promocyjny, obraz, p.id_kategorii AS pid, k.id_kategorii AS cid, k.nazwa AS cname, typ FROM produkty AS p INNER JOIN kategorie_prod AS k ON p.id_kategorii = k.id_kategorii WHERE p.nazwa LIKE "'.$whichprod.'%"'.$sorting.';');
+                    if($_POST['kat'] != 0) {
+                        $filter = " AND p.id_kategorii = " . $_POST['kat'] . $sortarr[$_POST['sort']];
+                    } else {
+                        $filter = $sortarr[$_POST['sort']];
+                    }
+                    $stmt = $pdo->query('SELECT id_produktu, p.nazwa AS pname, cena, opis, czy_promocyjny, obraz, p.id_kategorii AS pid, k.id_kategorii AS cid, k.nazwa AS cname, typ FROM produkty AS p INNER JOIN kategorie_prod AS k ON p.id_kategorii = k.id_kategorii WHERE p.nazwa LIKE "'.$whichprod.'%"'.$filter.';');
                 } else {
                     $stmt = $pdo->query('SELECT id_produktu, p.nazwa AS pname, cena, opis, czy_promocyjny, obraz, p.id_kategorii AS pid, k.id_kategorii AS cid, k.nazwa AS cname, typ FROM produkty AS p INNER JOIN kategorie_prod AS k ON p.id_kategorii = k.id_kategorii;');
                 }
@@ -286,7 +303,8 @@ require("../backrooms/bd-authorize.php"); //Autoryzacja dostępu do bazy danych
                             <h3 class="card-title produkt'.$row['id_produktu'].'">'.$row['pname'].'</h3>
                             <p class="card-text produkt'.$row['id_produktu'].'" style="font-size:22px;">'.$row['cena'].' zł</p>
                             <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['opis'].'">
-                             <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['typ'].'">
+                            <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['typ'].'">
+                            <input type="hidden" class="produkt'.$row['id_produktu'].'" value="'.$row['pid'].'">
                             <a class="btn btn-outline-primary text-center" style="width:50%;margin: 0px auto;font-size:18px;" onclick="showProd('.$row['id_produktu'].')" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Wybierz</a>
                         </div>
                     </div>
