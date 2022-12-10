@@ -58,50 +58,12 @@ if(isset($_POST['edit'])){
 
     $(".wyswietlane_kolumny").click(function(){
 		var index = $(".wyswietlane_kolumny").index(this);
-		if(index==0)
-		{
-			$(".rozwijane_kolumny").eq(index).show("slow");
-		}
-		else if(index==1)
-		{
-			$(".rozwijane_kolumny").eq(index).show("slow");
-			$(".rozwijane_kolumny").eq(index+1).show("slow");
-		}
-		else if(index%2==0)
-		{
-			$(".rozwijane_kolumny").eq(index+index/2).show("slow");
-		}
-		else
-		{
-			$(".rozwijane_kolumny").eq(index+parseInt(index/2)).show("slow");
-			
-			$(".rozwijane_kolumny").eq(index+parseInt(index/2)+1).show("slow");
-		}
-        
+		$(".rozwijane_kolumny").eq(index).show("slow");
     });
 		
     $(".wyswietlane_kolumny").dblclick(function(){
 		var index = $(".wyswietlane_kolumny").index(this);
-		if(index==0)
-		{
-			$(".rozwijane_kolumny").eq(index).hide("slow");
-		}
-		else if(index==1)
-		{
-			$(".rozwijane_kolumny").eq(index).hide("slow");
-			$(".rozwijane_kolumny").eq(index+1).hide("slow");
-		}
-		else if(index%2==0)
-		{
-			$(".rozwijane_kolumny").eq(index+index/2).hide("slow");
-		}
-		else
-		{
-			$(".rozwijane_kolumny").eq(index+parseInt(index/2)).hide("slow");
-			
-			$(".rozwijane_kolumny").eq(index+parseInt(index/2)+1).hide("slow");
-		}
-        
+		$(".rozwijane_kolumny").eq(index).hide("slow");
     });
 });
 </script>
@@ -406,8 +368,9 @@ if(isset($_POST['edit'])){
                     echo "<div><th> Data </th>";
                     echo "<th> Status</th>";
                     echo "</tr>";
+                    echo "</table>";
                     foreach ($stmt as $row) {
-                        echo "<table><tr class='wyswietlane_kolumny' style='border-radius: 25px; border: 3px solid;  font-size: 120%'><td >".$row['id_transakcji']."</td>";
+                        echo "<table><tr class='wyswietlane_kolumny' style='border: 3px solid;  font-size: 120%'><td >".$row['id_transakcji']."</td>";
                         echo "<td>".$row['data']."</td>";
                         echo "<td>";
                         if($row['realizacja']==1){
@@ -417,24 +380,23 @@ if(isset($_POST['edit'])){
                         }
                         $stmt3 = $pdo->query('select produkty.nazwa, produkty.cena, szczegoly_transakcji.ilosc from produkty inner join szczegoly_transakcji on produkty.id_produktu=szczegoly_transakcji.id_produktu inner join transakcja on szczegoly_transakcji.id_transakcji = transakcja.id_transakcji where szczegoly_transakcji.id_transakcji LIKE "'.$row['id_transakcji'].'" and transakcja.id_klienta LIKE "'.$_SESSION['user'].'"');    
                         echo "</td></tr></table>";
-                        echo "<table style=' border: 1px solid; border-color: gray; border-radius: 25px; width: 100%;' class='rozwijane_kolumny'><th>Produkt</th>";
+                        echo "<table class='rozwijane_kolumny' style=' border: 1px solid; border-color: gray;><tr style=' width: 100%;'><th>Produkt</th>";
                         echo "<th>Cena</th>";
-                        echo "<th>Ilość</th>";
+                        echo "<th>Ilość</th></tr>";
                         $razem = 0.0;
                         foreach ($stmt3 as $row) {
-                        echo "<tr><td>".$row['nazwa']."</td>";
+                        echo "<tr style=' width: 100%;'><td>".$row['nazwa']."</td>";
                         echo "<td>".$row['cena']." zł</td>";
-                        echo "<td>".$row['ilosc']."</td></tr>";
+                        echo "<td>".$row['ilosc']."</td>";
                         $razem += $row['cena'] * $row['ilosc'];
+                        echo "</tr>";
+                    }
                         echo "<tr style='border: 1px solid; border-color: green; border-radius: 25px;'><td style='text-align: right'>Wartość zamówienia: ";
                         echo "<td>" .$razem." zł</td>";
                         echo "<td></td></tr>";
-                        echo "</table>";
-                        
-                    }
-                    
+                     echo "</table>";
                 }
-                echo "</table>";
+                
                     $stmt->closeCursor();
                 } catch(PDOException $e) {
                     echo '😵';
