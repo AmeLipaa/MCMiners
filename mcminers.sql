@@ -89,6 +89,25 @@ CREATE TABLE `promocje` (
 -- --------------------------------------------------------
 
 --
+-- Zastąpiona struktura widoku `Sklep`
+-- (Zobacz poniżej rzeczywisty widok)
+--
+CREATE TABLE `Sklep` (
+`cena` double
+,`cid` int unsigned
+,`cname` varchar(64)
+,`czy_promocyjny` tinyint(1)
+,`id_produktu` int unsigned
+,`obraz` varchar(128)
+,`opis` tinytext
+,`pid` int unsigned
+,`pname` varchar(64)
+,`typ` tinyint unsigned
+);
+
+-- --------------------------------------------------------
+
+--
 -- Struktura tabeli dla tabeli `szczegoly_promocji`
 --
 
@@ -173,6 +192,15 @@ INSERT INTO `wpisy` (`id_wpisu`, `id_klienta`, `tytul`, `tresc`, `data`) VALUES
 (1, 1, 'Otwarcie nowej edycji serwera MinersMC!', 'Zapraszamy na otwarcie nowej, a zarazem pierwszej edycji serwera MinersMC już w tą sobotę 3 grudnia o godzinie 19:00. Wersja gry - \'1.16\'.', '2022-11-27'),
 (2, 6, 'NIENAWIDZE', 'nienawidze matematyki straszna NUDA! trzymajcie sie w tym pierdolniku pozdro 300', '2022-11-29'),
 (3, 6, 'Dużo, dużo znaków!!!', 'Fortress Faceoffs presents to you a tale as old as time: A crew of mercs fighting for their lives to escape the grasp of Hell!\r\n\r\n\r\nHappens to the best of us, of course. In a voyage to uncover a cache of hidden treasure within the murky and treacherous waters of Michiganne, a ship of five drunken savages (that\'\'s you!) was caught in the eye of a treacherous storm and cast out to sea. This invoked the presence of a being only spoken of in shanties... Having been fed up with the sudden delivery of dead meat on his doorstep, THE DEVIL!!! himself forced these brutes back onto their boats and had them float across the River Styx so that he could be left in peace. After regaining consciousness and adjusting their one good eye, these men realized they weren\'\'t alone on their quest! An amassment of ships was on the same track, all with the goal of claiming bounty! Armed with cannons and ready to charge, these scurvy dogs must defeat all the other swashbucklin\'\' sailors and make it to the treasure alone! With the sound of explosions and slurred screams from every direction, THE DEVIL!!! may never get his rest...\r\n\r\n\r\nSign up your shipmates today for Fortress Faceoffs\'\' 6th event and become known as the best crew in history! The departure begins Oct. 14th @ 13:00 CEST (for Europe) / Oct. 21st @ 1:00pm EDT (for the Americas) and will last around 3 days each. For more information about event rules, prizes, and more, join the Fortress Faceoffs Discord and double-donk your way out of the deep sea! The top 8 crews will be broadcasted live, so perform your best or get washed up!', '2022-11-16');
+
+-- --------------------------------------------------------
+
+--
+-- Struktura widoku `Sklep`
+--
+DROP TABLE IF EXISTS `Sklep`;
+
+CREATE VIEW `Sklep`  AS SELECT `p`.`id_produktu` AS `id_produktu`, `p`.`nazwa` AS `pname`, `p`.`cena` AS `cena`, `p`.`opis` AS `opis`, `p`.`czy_promocyjny` AS `czy_promocyjny`, `p`.`obraz` AS `obraz`, `p`.`id_kategorii` AS `pid`, `k`.`id_kategorii` AS `cid`, `k`.`nazwa` AS `cname`, `k`.`typ` AS `typ` FROM (`produkty` `p` join `kategorie_prod` `k` on((`p`.`id_kategorii` = `k`.`id_kategorii`))) ;
 
 --
 -- Indeksy dla zrzutów tabel
