@@ -25,6 +25,20 @@ if (isset($_POST['usunindex'])) {
     unset($_SESSION['ceny'][$_POST['index']]);
 }
 if (isset($_POST['zakup'])){
+    $goforit = false;
+    if(isset($_SESSION['user']) && !empty($_SESSION['produkty']) && !empty($_SESSION['ilosci']) && !empty($_SESSION['ceny']) && isset($_POST['nick']) && isset($_POST['email']) && isset($_POST['karta']) && isset($_POST['ccv']) && isset($_POST['wygasniecie2']) && isset($_POST['wygasniecie'])){ //czy dane zostały przesłane
+        if(!empty($_POST['nick']) && !empty($_POST['email']) && !empty($_POST['karta']) && !empty($_POST['ccv']) && !empty($_POST['wygasniecie2']) && !empty($_POST['wygasniecie'])){ //czy wszystkie dane nie są puste
+            if(ctype_digit($_POST['karta']) && ctype_digit($_POST['ccv']) && ctype_digit($_POST['wygasniecie2']) && ctype_digit($_POST['wygasniecie'])){ //czy dane karty, ccv i dat są numerami
+                if(strlen($_POST['karta']) == 16 && strlen($_POST['ccv']) == 3 && strlen($_POST['wygasniecie']) == 2 && strlen($_POST['wygasniecie2']) == 4){ //czy zgadzają się długości danych
+                    if($_POST['wygasniecie'] >= 1 && $_POST['wygasniecie'] <= 12){ //Czy poprawny miesiąc
+                        if($_POST['wygasniecie2'] > intval(date("Y")) || $_POST['wygasniecie2'] == date("Y") && $_POST['wygasniecie'] > intval(date("m"))){ //Albo podany rok jeszcze nie nadszedł albo aktualny miesiąc jest przed wygaśnięciem
+                            $goforit = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
     try {
         $x = 2;
         $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -32,7 +46,7 @@ if (isset($_POST['zakup'])){
 
         $klient = $_SESSION['user'];
         $data = date("Y-m-d");
-        if (!empty($_SESSION['produkty']) && !empty($_SESSION['ilosci']) && !empty($klient)) {
+        if ($goforit == true) {
             $stmt = $pdo->exec('INSERT INTO transakcja (`id_klienta`, `data`, `realizacja`) VALUES ( ' . $klient . ',"' . $data . '",1)');
             $last_id = $pdo->lastInsertId();
             foreach($_SESSION['produkty'] as $key => $val){
@@ -46,6 +60,8 @@ if (isset($_POST['zakup'])){
         header('location:index.php?x='.$x);
     } catch(PDOException $e) {
     echo '😵';
+    $x = 2;
+    header('location:index.php?x='.$x);
     }
 }
 
