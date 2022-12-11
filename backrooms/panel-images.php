@@ -218,6 +218,17 @@ try{
             max-width: 90%;
             max-height: 80%;
         }
+        .alert{
+            color: black;
+            margin-bottom: 0px !important;
+        }
+        .alert-success{
+            background-color: #00FF7F;
+            border-color: #00b359;
+        }
+        .alert svg{
+            margin-right: 15px;
+        }
     </style>
 
 </head>
@@ -269,6 +280,34 @@ try{
             move_uploaded_file($tmp_name, $location.$file_name);
         }
     }
+    if(isset($_POST['confirm'])){
+        if(isset($_POST['url'])){
+            $base_directory = '../resources/'.$_POST['url'];
+            if(unlink($base_directory.$_GET['url'])){
+                echo '<div class="alert alert-success d-flex align-items-center" role="alert" id="jupi">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                      <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                    </svg>
+					<div>
+						Plik usunięty pomyślnie.
+					</div>
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=index.php; return false;"></button>
+					</div>';
+            } else {
+                echo '<div class="alert alert-danger d-flex align-items-center" role="alert" id="jupi">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-question-octagon" viewBox="0 0 16 16">
+                      <path d="M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353L4.54.146zM5.1 1 1 5.1v5.8L5.1 15h5.8l4.1-4.1V5.1L10.9 1H5.1z"/>
+                      <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                    </svg>
+                    <div>
+                            Wystąpił problem z usuwaniem pliku.
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=index.php; return false;"></button>
+                    </div>';
+            }
+        }
+    }
     ?>
 
     <div class="searchpanel">
@@ -307,7 +346,7 @@ try{
                         </svg>
                         Kopiuj link
                     </a>
-                    <a class="btn btn-outline-primary text-center" onclick="deleteFile('.$filestring.')">
+                    <a class="btn btn-outline-primary text-center" onclick="deleteFile('.$filestring.')" data-bs-toggle="modal" data-bs-target="#usuwanie">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
                         <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>                    
                     </svg>
@@ -321,113 +360,28 @@ try{
     </div>
 
     <!-- MODAL -->
-    <div class="modal fade" id="userForm1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="usuwanie" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle1">Dodawanie produktu</h5>
+                    <h5 class="modal-title" id="modalTitle1">Usuwanie obrazu</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="post">
                     <div class="modal-body">
-                        <input type="hidden" value="" name="productid" id="productFormID">
-                        <input class="form-control mt-3" type="text" maxlength="64" name="nazwa" id="productFormNazwa" placeholder="Nazwa" required>
-                        <input class="form-control mt-3" type="number" step="0.01" min="0" name="cena" value="0" id="productFormCena" placeholder="Cena (zł)" required>
-                        <input class="form-control mt-3" type="text" name="opis" id="productFormOpis" maxlength="254" placeholder="Opis">
-                        <select name='katid' class="form-control mt-3" id="productFormKat">
-                            <option value='' selected='' disabled=''>Kategoria</option>
-                            <?php
-                            $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
-                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                            $stmt = $pdo->query('SELECT * FROM kategorie_prod;');
-                            foreach ($stmt as $row) {
-                                echo "<option value='".$row['id_kategorii']."'>".$row['nazwa']."</option>";
-                            }
-                            ?>
-                        </select>
-                        <label for="productFormImg" class="form-label mt-3">Obraz dla produktu (Skalowany do 400x400)</label>
-                        <br>
-                        <input type="radio" name="metoda" id="link" onchange="changeMethod()" checked>
-                        <label for="link">Link do obrazu</label>
-                        <input type="radio" name="metoda" id="dodaj" onchange="changeMethod()">
-                        <label for="dodaj">Dodaj nowy obraz</label>
-                        <input class="form-control form-control-sm" type="file" name="obraz" id="productFormNewImg" accept="image/png,image/webp,image/gif" style="display:none;">
-                        <input class="form-control" type="url" placeholder="Link do pliku z obrazem" name="obrazurl" id="productFormImgLink" style="display:block;">
-                        <br>
-                        <input type="checkbox" name="czypromo" id="productFormDostepnosc" checked="false" placeholder="Dostępny tylko na promocji">
-                        <label for="productFormDostepnosc">Dostępny tylko na promocji</label>
+                        <input type="hidden" value="" name="url" id="fileurl">
+                        <h2 id="fileh2">Czy na pewno chcesz usunąć plik?</h2>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                        <button id="confirmAddNew1" name="add" type="submit" class="btn btn-primary" style="display:block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                            </svg>
-                            Dodaj
-                        </button>
-                        <button id="confirmRemove1" name="remove" type="submit" class="btn btn-primary" style="display:none">
+                        <button id="confirm" name="confirm" type="submit" class="btn btn-primary" style="display:block">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
                                 <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
                             </svg>
                             Usuń
                         </button>
-                        <button id="confirmEdit1" name="edit" type="submit" class="btn btn-primary" style="display:none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                            </svg>
-                            Zapisz
-                        </button>
                 </form>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL -->
-<div class="modal fade" id="userForm2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle2">Dodawanie/edycja kategorii</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post">
-                <div class="modal-body">
-                    <select class='mt-3 form-control' id='kategorianame' name='ktorakat' onChange='kategoriaUpdate()'>
-                        <option value='' selected='' id="addNewCat">Dodaj nową</option>
-                        <?php
-                        $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
-                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                        $stmt = $pdo->query('SELECT * FROM kategorie_prod;');
-                        foreach ($stmt as $row) {
-                            echo "<option value='".$row['id_kategorii']."'>".$row['nazwa']."</option>";
-                        }
-                        ?>
-                    </select>
-                    <input class="form-control mt-3" type="text" maxlength="48" name="nazwaKat" id="prodFormNazwaKat" placeholder="Nazwa" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                    <button id="confirmAddCat" name="addCat" type="submit" class="btn btn-primary" style="display:block">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                            <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                        </svg>
-                        Dodaj
-                    </button>
-                    <button id="confirmRemoveCat" name="removeCat" type="submit" class="btn btn-primary" style="display:none">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                            <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
-                        </svg>
-                        Usuń
-                    </button>
-                    <button id="confirmEditCat" name="editCat" type="submit" class="btn btn-primary" style="display:none">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                            <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                        </svg>
-                        Zapisz
-                    </button>
-            </form>
-        </div>
         </div>
     </div>
 </div>
@@ -453,6 +407,24 @@ try{
     document.getElementById("largeimg").addEventListener("click", function() {
         document.getElementById("largeimg").style.display = "none";
     });
+    function copyLink(link){ //mambo dżambo ale działa
+        let textArea = document.createElement("textarea");
+        textArea.value = link;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        return new Promise((res, rej) => {
+            document.execCommand('copy') ? res() : rej();
+            textArea.remove();
+        });
+    }
+    function deleteFile(filename){
+        document.getElementById('fileurl').value = filename;
+        document.getElementById('fileh2').innerText = "Czy na pewno chcesz usunąć plik " + filename + "?";
+    }
 </script>
 <script src="../resources/scroll.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
