@@ -410,6 +410,7 @@ if(isset($_POST['edit'])){
             </div>
         </div>
     </div>
+</div>
 
     <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
 </div>
