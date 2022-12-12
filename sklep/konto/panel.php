@@ -24,12 +24,15 @@ if(isset($_POST['edit'])){
 		foreach ($stmt1 as $row) {
 			$stmtdos = $pdo -> query('SELECT nick, email FROM klienci');
             foreach ($stmtdos as $rowdos){
-                if($rowdos['id_klienta'] != $userid && $rowdos['email'] == $email || $rowdos['nick'] == $nick && $rowdos['id_klienta'] != $userid){
-
+                if($rowdos['id_klienta'] != $userid){
+                    if($rowdos['email'] == $email || $rowdos['nick'] == $nick){
+                        $switcharoo = true;
+                    }
                 }
             }
-            //$stmt = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'", `admin` = "'.$admin.'" WHERE `id_klienta` LIKE '.$userid);
-
+            if($switcharoo == false){
+                $stmt = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'" WHERE `id_klienta` LIKE '.$userid);
+            }
 		}
 		
 		
