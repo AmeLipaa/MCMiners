@@ -61,18 +61,8 @@
             background-color:#00FF7F;
             color: black;
         }
-        .btn:focus{
-            box-shadow: 0 0 0 .25rem rgba(0, 179, 89,.5) !important;
-        }
-        .btn:active{
-            background-color: #00b359;
-            border-color: #00FF7F;
-        }
         .card-title{
             font-family: 'Nunito', sans-serif;
-        }
-        .card-img-top{
-            background-image: url("../resources/card.png");
         }
         .card{
             border-width: 0px;
@@ -263,7 +253,7 @@
                 $stmt->closeCursor();
                 ?>
                 <p>
-                    <a class="btn btn-outline-primary" href="wpisy.php">Wszystkie aktualności</a>
+                    <a class="btn btn-outline-primary" href="#">Wszystkie aktualności</a>
                 </p>
             </div>
         </div>
@@ -275,25 +265,33 @@
             Wesprzyj serwer kupując w naszym sklepie
         </h1>
         <div class="row">
-            <?php
-            $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-            $stmt = $pdo->query('SELECT * FROM produkty LIMIT 3;');
-
-            foreach($stmt AS $row){
-                echo '<div class="col-md-4 d-flex justify-content-center" style="margin-top: 25px;">
+            <div class="col-md-4 d-flex justify-content-center" style="margin-top: 25px;">
                 <div class="card" style="width:400px;height:500px;">
-                    <img class="card-img-top" src="'.$row['obraz'].'" alt="Card image">
+                    <img class="card-img-top" src="./resources/vip.png" alt="Card image">
                     <div class="card-body">
-                        <h3 class="card-title" style="color:black;">'.$row['nazwa'].'</h3>
-                        <p class="card-text" style="color:black;font-size:22px;">'.$row['cena'].' zł</p>
+                        <h3 class="card-title" style="color:black;">Ranga VIP</h3>
+                        <p class="card-text" style="color:black;font-size:22px;">3.99zł/miesiąc</p>
                     </div>
                 </div>
-            </div>';
-            }
-            $stmt -> closeCursor();
-            ?>
+            </div>
+            <div class="col-md-4 d-flex justify-content-center" style="margin-top: 25px;">
+                <div class="card" style="width:400px;height:500px;">
+                    <img class="card-img-top" src="./resources/wedit.png" alt="Card image">
+                    <div class="card-body">
+                        <h3 class="card-title" style="color:black;">WorldEdit na Creative</h3>
+                        <p class="card-text" style="color:black;font-size:22px;">0.99zł/miesiąc</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex justify-content-center" style="margin-top: 25px;">
+                <div class="card" style="width:400px;height:500px;">
+                    <img class="card-img-top" src="./resources/unban.png" alt="Card image">
+                    <div class="card-body">
+                        <h3 class="card-title" style="color:black;">Unban</h3>
+                        <p class="card-text" style="color:black;font-size:22px;">35.00zł/jednorazowo</p>
+                    </div>
+                </div>
+            </div>
         </div>
         <div style="padding:40px;">
             <a class="btn btn-outline-primary text-center" style="min-width:35%;max-width:635px;margin: 0px auto;font-size:22px;" href="./sklep">Zobacz pełną ofertę</a>

@@ -23,17 +23,57 @@ if(isset($_POST['edit'])){
         $admin = 0;
     }
     if(!empty($nick) && !empty($email)){
-        $stmt = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'", `admin` = "'.$admin.'" WHERE `id_klienta` LIKE '.$userid);
+		
+		$stmt1 = $pdo->query('SELECT * FROM klienci');
+		foreach ($stmt1 as $row) {
+			if($userid!=$row['id_klienta']){
+				if($nick==$row['nick'] || $email==$row['email']){
+					echo'';
+				}
+				else {
+					 $stmt = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'", `admin` = "'.$admin.'" WHERE `id_klienta` LIKE '.$userid);
+				}
+			}
+		}
+		
+		
+       
     }
     header('location:panel.php');
-} elseif(isset($_POST['remove'])){
+	$stmt1->closeCursor();
+
+}
+if(isset($_POST['remove'])){
     $userid = $_POST['ID'];
     if(!empty($userid)){
         $stmt = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'", `admin` = "'.$admin.'" WHERE `id_klienta` LIKE '.$userid); // Usuwanie nie powinno całkowicie wymazywać użytkownika z bazy danych bo musi zostać w historii tranzakcji
     }
+	   session_unset();
+    session_destroy();
     header('location:panel.php');
-}
 
+
+}
+if(isset($_POST['editpwd'])){
+    $userid = $_POST['ID'];
+	$oldpwd=$_POST['oldpwd'];
+	$newpwd=$_POST['newpwd'];
+    if(!empty($userid)){
+		$stmt = $pdo->query('SELECT * FROM klienci');
+		foreach ($stmt as $row) {
+			$checkpwd = hash('whirlpool',$oldpwd);
+            if($checkpwd == $row['haslo']){
+				$hashpwd = hash('whirlpool',$newpwd);
+				$stmt2 = $pdo->exec('UPDATE klienci SET `haslo` = "'.$hashpwd.'" WHERE `id_klienta` LIKE '.$userid); 
+			}
+			else{
+				echo'Niepoprawne hasło.';
+			}
+		}
+	}
+	 header('location:panel.php');
+$stmt->closeCursor();
+}
 ?>
 <!DOCTYPE html>
 <html lang="pl">
@@ -300,8 +340,12 @@ if(isset($_POST['edit'])){
                 <h5 class="modal-title" id="modalTitle">Edycja klienta</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="post">
+               
                     <div class="modal-body">
+					<button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#nickemailzmiana" aria-expanded="false" aria-controls="collapseExample">
+    Edytuj nick lub email</button>
+	<div class="collapse" id="nickemailzmiana">
+	 <form method="post">
                     <?php
                 try{
                     $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -316,15 +360,8 @@ if(isset($_POST['edit'])){
                     echo '😵';
                 }
                 ?>
-                 </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                        <button id="confirmRemove" name="remove" type="submit" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                                <path d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm2.121.707a1 1 0 0 0-1.414 0L4.16 7.547l5.293 5.293 4.633-4.633a1 1 0 0 0 0-1.414l-3.879-3.879zM8.746 13.547 3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z"/>
-                            </svg>
-                            Usuń
-                        </button>
+				
+				 
                         <?php
                 try{
                     $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -341,7 +378,77 @@ if(isset($_POST['edit'])){
                             </svg>
                             Zapisz
                         </button>
-                </form>
+				
+				  </form>
+				</div>
+				<br>
+<button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#zmianapwd" aria-expanded="false" aria-controls="collapseExample">
+    Zmień hasło</button>
+	<div class="collapse" id="zmianapwd">
+	
+	<form method="post">
+	 <?php
+                try{
+                    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
+                    foreach ($stmt as $row) {
+                    echo "<input class='form-control mt-3' style='display:none' required name='ID' id='userFormID3' value ='".$row['id_klienta']."'>";
+                    }
+                } catch(PDOException $e) {
+                    echo '😵';
+                }
+                ?>
+				<input class='form-control mt-3' required type='password' maxlength='64' name='oldpwd' id='userFormOldPwd' placeholder='Stare hasło'>
+				<input class='form-control mt-3' required type='password' maxlength='64' name='newpwd' id='userFormNewPwd' placeholder='Nowe hasło'>
+				<button id="confirmpwd" name="editpwd" type="submit" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                            </svg>Zapisz zmiany
+							</button>
+</form>
+				</div>
+				<br>
+				<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#czyusunac">
+  Chcę usunąć konto
+</button>
+<div class="modal fade" id="czyusunac" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Usuwanie konta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Czy na pewno chcesz usunąć swoje konto? <strong>To nieodwracalny proces!</strong>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		<form method="post">
+	   <?php
+                try{
+                    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
+                    foreach ($stmt as $row) {
+                    echo "<input class='form-control mt-3' style='display:none' required name='ID' id='userFormID2' value ='".$row['id_klienta']."'>";
+                    }
+                } catch(PDOException $e) {
+                    echo '😵';
+                }
+                ?>
+        <button id="confirmRemove" name="remove" type="submit" class="btn btn-primary">Usuń</button>
+		</form>
+      </div>
+    </div>
+  </div>
+</div>
+				
+                 </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                      
+	
+              
             </div>
         </div>
     </div>

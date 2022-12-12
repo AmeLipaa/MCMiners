@@ -293,7 +293,7 @@ if($_GET['x'] == 1){
 
     <div class="row">
         <div class="col-md-12 text-center" style="background: no-repeat fixed center url('../resources/background4.png');">
-            <div class="darkbg" id="kontodiv">
+            <div class="darkbg">
                 <?php
                 if(!isset($_SESSION['user'])){
                     echo '
@@ -371,13 +371,13 @@ if($_GET['x'] == 1){
                 if (isset($_POST['filter'])) {
                     $whichprod = $_POST['which-product'];
                     if($_POST['kat'] != 0) {
-                        $filter = " AND pid = " . $_POST['kat'] . $sortarr[$_POST['sort']];
+                        $filter = " AND p.id_kategorii = " . $_POST['kat'] . $sortarr[$_POST['sort']];
                     } else {
                         $filter = $sortarr[$_POST['sort']];
                     }
-                    $stmt = $pdo->query('SELECT * FROM `Sklep` WHERE `pname` LIKE "'.$whichprod.'%"'.$filter.';');
+                    $stmt = $pdo->query('SELECT id_produktu, p.nazwa AS pname, cena, opis, czy_promocyjny, obraz, p.id_kategorii AS pid, k.id_kategorii AS cid, k.nazwa AS cname, typ FROM produkty AS p INNER JOIN kategorie_prod AS k ON p.id_kategorii = k.id_kategorii WHERE p.nazwa LIKE "'.$whichprod.'%"'.$filter.';');
                 } else {
-                    $stmt = $pdo->query('SELECT * FROM `Sklep`;');
+                    $stmt = $pdo->query('SELECT id_produktu, p.nazwa AS pname, cena, opis, czy_promocyjny, obraz, p.id_kategorii AS pid, k.id_kategorii AS cid, k.nazwa AS cname, typ FROM produkty AS p INNER JOIN kategorie_prod AS k ON p.id_kategorii = k.id_kategorii;');
                 }
 
                 foreach ($stmt as $row) {
@@ -426,13 +426,7 @@ if($_GET['x'] == 1){
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                    <?php
-                    if(isset($_SESSION['user'])){
-                        echo '<button type="submit" name="add" class="btn btn-primary">Dodaj do koszyka</button>';
-                    } else {
-                        echo '<a href="./konto" class="btn btn-primary">Zaloguj się</a>';
-                    }
-                    ?>
+                    <button type="submit" name="add" class="btn btn-primary">Dodaj do koszyka</button>
                     </form>
                 </div>
             </div>
