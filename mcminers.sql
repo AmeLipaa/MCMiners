@@ -1,5 +1,3 @@
--- --------------------------------------------------------
-
 --
 -- Struktura tabeli dla tabeli `kategorie_prod`
 --
@@ -46,7 +44,7 @@ INSERT INTO `klienci` (`id_klienta`, `nick`, `email`, `haslo`, `admin`) VALUES
 (5, 'Flixanoa', 'feffington@gmail.com', '6dcbe3b1e13a9749e1fe9627cedb881a7844536608d78b973df2b364583bd11b7379e131c0f88eb155ed6dd17b3f9253cdfdc6dd709901d0c6c60f0ac0cf2755', 0),
 (6, 'celaakpl', 'celaak@gmail.com', '5e55a1bc2cb5c0cd879509f42c201f11377db3e62b0dd93cb505549c17a8fad084d42a4c4872839cceb6d4fc29b3c54f2d056e31440fa5bb4097c2a0b2c3e641', 1),
 (7, 'Jacob_Kappowicz', 'NULL', 'NULL', 0),
-(8, '_PanSmietanka_', 'panpikus85@interia.pl', '97f80df44c8647926d39466520a7d48282e3ff89beb267fed6e0790e78c72d9829fbd59d7f7db7f7f4ca1fdbcdb2e847e7427452d629e66e149655c41f4f3d61', 0);
+(9, '_PanSmietanka_', 'panpikus85@interia.pl', '97f80df44c8647926d39466520a7d48282e3ff89beb267fed6e0790e78c72d9829fbd59d7f7db7f7f4ca1fdbcdb2e847e7427452d629e66e149655c41f4f3d61', 0);
 
 -- --------------------------------------------------------
 
@@ -91,6 +89,25 @@ CREATE TABLE `promocje` (
 -- --------------------------------------------------------
 
 --
+-- Zastąpiona struktura widoku `Sklep`
+-- (Zobacz poniżej rzeczywisty widok)
+--
+CREATE TABLE `Sklep` (
+`cena` double
+,`cid` int unsigned
+,`cname` varchar(64)
+,`czy_promocyjny` tinyint(1)
+,`id_produktu` int unsigned
+,`obraz` varchar(128)
+,`opis` tinytext
+,`pid` int unsigned
+,`pname` varchar(64)
+,`typ` tinyint unsigned
+);
+
+-- --------------------------------------------------------
+
+--
 -- Struktura tabeli dla tabeli `szczegoly_promocji`
 --
 
@@ -120,7 +137,13 @@ CREATE TABLE `szczegoly_transakcji` (
 --
 
 INSERT INTO `szczegoly_transakcji` (`id_szczegolow`, `id_transakcji`, `id_produktu`, `ilosc`, `cena`) VALUES
-(1, 1, 2, 1, 1.99);
+(1, 1, 2, 1, 1.99),
+(2, 3, 7, 1, 0.99),
+(3, 3, 6, 3, 4.5),
+(4, 4, 7, 1, 0.99),
+(5, 5, 1, 1, 0.99),
+(6, 6, 2, 1, 2.99),
+(7, 6, 6, 2, 3);
 
 -- --------------------------------------------------------
 
@@ -132,7 +155,7 @@ CREATE TABLE `transakcja` (
   `id_transakcji` int UNSIGNED NOT NULL,
   `id_klienta` int UNSIGNED NOT NULL,
   `data` date NOT NULL,
-  `realizacja` tinyint(1) NOT NULL COMMENT 'czy zrealizowane'
+  `realizacja` tinyint(1) NOT NULL COMMENT 'czy zrealizowane (0 - nie, 1 - tak, 2 - anulowano/zwrot pieniedzy)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -140,7 +163,12 @@ CREATE TABLE `transakcja` (
 --
 
 INSERT INTO `transakcja` (`id_transakcji`, `id_klienta`, `data`, `realizacja`) VALUES
-(1, 7, '2022-12-12', 0);
+(1, 1, '2022-12-12', 0),
+(2, 1, '2022-12-10', 1),
+(3, 1, '2022-12-10', 1),
+(4, 1, '2022-12-10', 1),
+(5, 2, '2022-12-11', 1),
+(6, 2, '2022-12-11', 1);
 
 -- --------------------------------------------------------
 
@@ -163,10 +191,16 @@ CREATE TABLE `wpisy` (
 INSERT INTO `wpisy` (`id_wpisu`, `id_klienta`, `tytul`, `tresc`, `data`) VALUES
 (1, 1, 'Otwarcie nowej edycji serwera MinersMC!', 'Zapraszamy na otwarcie nowej, a zarazem pierwszej edycji serwera MinersMC już w tą sobotę 3 grudnia o godzinie 19:00. Wersja gry - \'1.16\'.', '2022-11-27'),
 (2, 6, 'NIENAWIDZE', 'nienawidze matematyki straszna NUDA! trzymajcie sie w tym pierdolniku pozdro 300', '2022-11-29'),
-(3, 6, 'Dużo, dużo znaków!!!', 'Fortress Faceoffs presents to you a tale as old as time: A crew of mercs fighting for their lives to escape the grasp of Hell!\r\n\r\n\r\nHappens to the best of us, of course. In a voyage to uncover a cache of hidden treasure within the murky and treacherous waters of Michiganne, a ship of five drunken savages (that\'\'s you!) was caught in the eye of a treacherous storm and cast out to sea. This invoked the presence of a being only spoken of in shanties... Having been fed up with the sudden delivery of dead meat on his doorstep, THE DEVIL!!! himself forced these brutes back onto their boats and had them float across the River Styx so that he could be left in peace. After regaining consciousness and adjusting their one good eye, these men realized they weren\'\'t alone on their quest! An amassment of ships was on the same track, all with the goal of claiming bounty! Armed with cannons and ready to charge, these scurvy dogs must defeat all the other swashbucklin\'\' sailors and make it to the treasure alone! With the sound of explosions and slurred screams from every direction, THE DEVIL!!! may never get his rest...\r\n\r\n\r\nSign up your shipmates today for Fortress Faceoffs\'\' 6th event and become known as the best crew in history! The departure begins Oct. 14th @ 13:00 CEST (for Europe) / Oct. 21st @ 1:00pm EDT (for the Americas) and will last around 3 days each. For more information about event rules, prizes, and more, join the Fortress Faceoffs Discord and double-donk your way out of the deep sea! The top 8 crews will be broadcasted live, so perform your best or get washed up!', '2022-11-16'),
-(4, 1, 'Celaku, co ty kombinujesz?', 'Co celak wyprawia o godzinie 02:07', '2022-12-07'),
-(5, 6, 'albert albert albert 3zł', 'bottom text', '2022-12-03'),
-(6, 1, 'Celak chodź tutaj do mnie', 'juz', '2022-12-05');
+(3, 6, 'Dużo, dużo znaków!!!', 'Fortress Faceoffs presents to you a tale as old as time: A crew of mercs fighting for their lives to escape the grasp of Hell!\r\n\r\n\r\nHappens to the best of us, of course. In a voyage to uncover a cache of hidden treasure within the murky and treacherous waters of Michiganne, a ship of five drunken savages (that\'\'s you!) was caught in the eye of a treacherous storm and cast out to sea. This invoked the presence of a being only spoken of in shanties... Having been fed up with the sudden delivery of dead meat on his doorstep, THE DEVIL!!! himself forced these brutes back onto their boats and had them float across the River Styx so that he could be left in peace. After regaining consciousness and adjusting their one good eye, these men realized they weren\'\'t alone on their quest! An amassment of ships was on the same track, all with the goal of claiming bounty! Armed with cannons and ready to charge, these scurvy dogs must defeat all the other swashbucklin\'\' sailors and make it to the treasure alone! With the sound of explosions and slurred screams from every direction, THE DEVIL!!! may never get his rest...\r\n\r\n\r\nSign up your shipmates today for Fortress Faceoffs\'\' 6th event and become known as the best crew in history! The departure begins Oct. 14th @ 13:00 CEST (for Europe) / Oct. 21st @ 1:00pm EDT (for the Americas) and will last around 3 days each. For more information about event rules, prizes, and more, join the Fortress Faceoffs Discord and double-donk your way out of the deep sea! The top 8 crews will be broadcasted live, so perform your best or get washed up!', '2022-11-16');
+
+-- --------------------------------------------------------
+
+--
+-- Struktura widoku `Sklep`
+--
+DROP TABLE IF EXISTS `Sklep`;
+
+CREATE VIEW `Sklep`  AS SELECT `p`.`id_produktu` AS `id_produktu`, `p`.`nazwa` AS `pname`, `p`.`cena` AS `cena`, `p`.`opis` AS `opis`, `p`.`czy_promocyjny` AS `czy_promocyjny`, `p`.`obraz` AS `obraz`, `p`.`id_kategorii` AS `pid`, `k`.`id_kategorii` AS `cid`, `k`.`nazwa` AS `cname`, `k`.`typ` AS `typ` FROM (`produkty` `p` join `kategorie_prod` `k` on((`p`.`id_kategorii` = `k`.`id_kategorii`))) ;
 
 --
 -- Indeksy dla zrzutów tabel
@@ -241,7 +275,7 @@ ALTER TABLE `kategorie_prod`
 -- AUTO_INCREMENT dla tabeli `klienci`
 --
 ALTER TABLE `klienci`
-  MODIFY `id_klienta` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_klienta` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT dla tabeli `produkty`
@@ -265,13 +299,13 @@ ALTER TABLE `szczegoly_promocji`
 -- AUTO_INCREMENT dla tabeli `szczegoly_transakcji`
 --
 ALTER TABLE `szczegoly_transakcji`
-  MODIFY `id_szczegolow` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_szczegolow` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT dla tabeli `transakcja`
 --
 ALTER TABLE `transakcja`
-  MODIFY `id_transakcji` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_transakcji` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT dla tabeli `wpisy`
@@ -315,7 +349,3 @@ ALTER TABLE `transakcja`
 ALTER TABLE `wpisy`
   ADD CONSTRAINT `wpisy_ibfk_1` FOREIGN KEY (`id_klienta`) REFERENCES `klienci` (`id_klienta`);
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

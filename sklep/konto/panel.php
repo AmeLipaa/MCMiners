@@ -13,27 +13,67 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 if(!isset($_SESSION['user'])){
     header('location:index.php');
 }
+
 if(isset($_POST['edit'])){
-    $userid = $_POST['ID'];
+    $userid = $_SESSION['user'];
     $nick = $_POST['nick'];
     $email = $_POST['email'];
-    if(isset($_POST['admin'])){
-        $admin = 1;
-    } else {
-        $admin = 0;
-    }
+    $ban = false;
     if(!empty($nick) && !empty($email)){
-        $stmt = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'", `admin` = "'.$admin.'" WHERE `id_klienta` LIKE '.$userid);
+        $stmt = $pdo->query('SELECT * FROM klienci;');
+        foreach ($stmt as $row) {
+            if($row['id_klienta'] != $userid){
+                if($row['email'] == $email || $row['nick'] == $nick){
+                     $ban = true;
+                }
+            }    
+        }
+        if($ban == false){
+            $stmtuno = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'" WHERE `id_klienta` LIKE '.$userid);
+        }
     }
     header('location:panel.php');
-} elseif(isset($_POST['remove'])){
-    $userid = $_POST['ID'];
+    $stmtuno->closeCursor();
+    $stmt->closeCursor();
+}
+if(isset($_POST['remove'])){
+    $userid = $_SESSION['user'];
     if(!empty($userid)){
-        $stmt = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'", `admin` = "'.$admin.'" WHERE `id_klienta` LIKE '.$userid); // Usuwanie nie powinno całkowicie wymazywać użytkownika z bazy danych bo musi zostać w historii tranzakcji
+        $stmt = $pdo->query('SELECT id_klienta FROM transakcja WHERE id_klienta = '.$userid);
+        if($stmt->rowCount() == 0){
+            $stmt->closeCursor();
+            $stmt = $pdo -> exec('DELETE FROM klienci WHERE `id_klienta` = '.$userid);
+        } else {
+            $stmt->closeCursor();
+            $stmt = $pdo->exec('UPDATE klienci SET `email` = "NULL", `haslo` = "NULL" WHERE `id_klienta` = '.$userid); // Usuwanie nie powinno całkowicie wymazywać użytkownika z bazy danych bo musi zostać w historii tranzakcji
+        }
     }
+    $stmt -> closeCursor();
+    session_unset();
+    session_destroy();
     header('location:panel.php');
 }
+if(isset($_POST['editpwd'])){
+    $userid = $_SESSION['user'];
+    $oldpwd=$_POST['oldpwd'];
+    $newpwd=$_POST['newpwd'];
 
+    if(!empty($userid) && !empty($oldpwd) && !empty($newpwd)){
+        $stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta = '.$userid);
+        $checkpwd = hash('whirlpool',$oldpwd);
+        foreach ($stmt as $row) {
+            if($checkpwd == $row['haslo']){
+                $hashpwd = hash('whirlpool',$newpwd);
+                $stmt -> closeCursor();
+                $stmt = $pdo->exec('UPDATE klienci SET `haslo` = "'.$hashpwd.'" WHERE `id_klienta` = '.$userid); 
+            } else {
+                echo'Niepoprawne hasło.';
+            }
+        }
+    }
+   header('location:panel.php');
+    $stmt->closeCursor();
+}
 ?>
 <!DOCTYPE html>
 <html lang="pl">
@@ -52,18 +92,18 @@ if(isset($_POST['edit'])){
 
 <script> 
 
-	$(document).ready(function(){
-	
-	$(".rozwijane_kolumny").hide();
+  $(document).ready(function(){
+  
+  $(".rozwijane_kolumny").hide();
 
     $(".wyswietlane_kolumny").click(function(){
-		var index = $(".wyswietlane_kolumny").index(this);
-		$(".rozwijane_kolumny").eq(index).show("slow");
+    var index = $(".wyswietlane_kolumny").index(this);
+    $(".rozwijane_kolumny").eq(index).show("slow");
     });
-		
+    
     $(".wyswietlane_kolumny").dblclick(function(){
-		var index = $(".wyswietlane_kolumny").index(this);
-		$(".rozwijane_kolumny").eq(index).hide("slow");
+    var index = $(".wyswietlane_kolumny").index(this);
+    $(".rozwijane_kolumny").eq(index).hide("slow");
     });
 });
 </script>
@@ -128,10 +168,20 @@ if(isset($_POST['edit'])){
             color:black;
             border: none;
         }
+        .btn-primary:focus{
+            background-color:#00b359;
+        }
         .btn-secondary{
             background-color:#444;
             color:white;
             border: none;
+        }
+        .btn:focus{
+            box-shadow: 0 0 0 .25rem rgba(0, 179, 89,.5) !important;
+        }
+        .btn:active{
+            background-color: #00b359;
+            border-color: #00FF7F;
         }
         .invis{
             background-color: rgba(0, 0, 0, 0);
@@ -220,6 +270,12 @@ if(isset($_POST['edit'])){
             color: #00FF7F;
             transition: 0.3s;
         }
+        #backroomsbutton {
+            margin: auto;
+            display: block;
+            width: 25%;
+            min-width: fit-content;
+        }
     </style>
 </head>
 <body data-bs-spy="scroll" data-bs-target="#navigacja">
@@ -251,24 +307,7 @@ if(isset($_POST['edit'])){
 
     <div class="welcomediv">
         <?php
-        $time = time();
-        try{
-            $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
-
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $stmt = $pdo->query('SELECT nick FROM klienci WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
-            foreach ($stmt as $row) {
-                if(date('H', $time) > 18 || date('H', $time) < 5) {
-                    echo "<h1 class='welcome'>Dobry wieczór, " . $row['nick'] . "</h1>";
-                } else {
-                    echo "<h1 class='welcome'>Dzień dobry, " . $row['nick'] . "</h1>";
-                }
-                echo "<img src='https://minotar.net/helm/".$row['nick']."/100.png' class='welcome box-shadow' />";
-            }
-            $stmt->closeCursor();
-        } catch(PDOException $e) {
-            echo '😵';
-        }
+        include('../../backrooms/welcome.php');
         ?>
     </div>
     <div class="separator"></div>
@@ -276,32 +315,36 @@ if(isset($_POST['edit'])){
 
     <div class='panel-grid'>
                 <a class='big-btn box-shadow' data-bs-toggle='modal' data-bs-target='#userForm'>
-                 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-chat-right-quote-fill" viewBox="0 0 16 16">
-                <path d="M16 2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9.586a1 1 0 0 1 .707.293l2.853 2.853a.5.5 0 0 0 .854-.353V2zM7.194 4.766c.087.124.163.26.227.401.428.948.393 2.377-.942 3.706a.446.446 0 0 1-.612.01.405.405 0 0 1-.011-.59c.419-.416.672-.831.809-1.22-.269.165-.588.26-.93.26C4.775 7.333 4 6.587 4 5.667 4 4.747 4.776 4 5.734 4c.271 0 .528.06.756.166l.008.004c.169.07.327.182.469.324.085.083.161.174.227.272zM11 7.073c-.269.165-.588.26-.93.26-.958 0-1.735-.746-1.735-1.666 0-.92.777-1.667 1.734-1.667.271 0 .528.06.756.166l.008.004c.17.07.327.182.469.324.085.083.161.174.227.272.087.124.164.26.228.401.428.948.392 2.377-.942 3.706a.446.446 0 0 1-.613.01.405.405 0 0 1-.011-.59c.42-.416.672-.831.81-1.22z"></path>
-            </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
+                </svg>
         </a>
         <a class='big-btn box-shadow' data-bs-toggle='modal' data-bs-target='#userForm2'>
         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-card-checklist" viewBox="0 0 16 16" height="100" width="100">
                 <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"></path>
                 <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"></path>
             </svg>
-            </svg>
         </a>
         <a class="big-btn box-shadow" href="../koszyk.php">
-            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-basket2-fill" viewBox="0 0 16 16">
-                <path d="M5.929 1.757a.5.5 0 1 0-.858-.514L2.217 6H.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h.623l1.844 6.456A.75.75 0 0 0 3.69 15h8.622a.75.75 0 0 0 .722-.544L14.877 8h.623a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1.717L10.93 1.243a.5.5 0 1 0-.858.514L12.617 6H3.383L5.93 1.757zM4 10a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm3 0a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm4-1a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1z"></path>
-            </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-basket2-fill" viewBox="0 0 16 16">
+            <path d="M5.929 1.757a.5.5 0 1 0-.858-.514L2.217 6H.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h.623l1.844 6.456A.75.75 0 0 0 3.69 15h8.622a.75.75 0 0 0 .722-.544L14.877 8h.623a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1.717L10.93 1.243a.5.5 0 1 0-.858.514L12.617 6H3.383L5.93 1.757zM4 10a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm3 0a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm4-1a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1z"/>
+        </svg>
         </a>
             </div>
             <div class="modal fade" id="userForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Edycja klienta</h5>
+                <h5 class="modal-title" id="modalTitle">Ustawienia konta</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="post">
+               
                     <div class="modal-body">
+          <button class="btn btn-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#nickemailzmiana" aria-expanded="false" aria-controls="collapseExample">
+    Zmień nick lub e-mail</button>
+  <div class="collapse" id="nickemailzmiana">
+   <form method="post">
                     <?php
                 try{
                     $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -316,22 +359,15 @@ if(isset($_POST['edit'])){
                     echo '😵';
                 }
                 ?>
-                 </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                        <button id="confirmRemove" name="remove" type="submit" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                                <path d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm2.121.707a1 1 0 0 0-1.414 0L4.16 7.547l5.293 5.293 4.633-4.633a1 1 0 0 0 0-1.414l-3.879-3.879zM8.746 13.547 3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z"/>
-                            </svg>
-                            Usuń
-                        </button>
+        
+         
                         <?php
                 try{
                     $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                     $stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
                     foreach ($stmt as $row) {
-                        echo "<button id='confirmEdit' onclick='edit(". $row['id_klienta'].")' name='edit' type='submit' class='btn btn-primary'>";
+                        echo "<button id='confirmEdit' onclick='edit(". $row['id_klienta'].")' name='edit' type='submit' class='btn btn-primary mt-3'>";
                     } }catch(PDOException $e) {
                         echo '😵';
                     }
@@ -341,7 +377,74 @@ if(isset($_POST['edit'])){
                             </svg>
                             Zapisz
                         </button>
-                </form>
+        
+          </form>
+        </div>
+        <br>
+<button class="btn btn-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#zmianapwd" aria-expanded="false" aria-controls="collapseExample">
+    Zmień hasło</button>
+  <div class="collapse" id="zmianapwd">
+  
+  <form method="post">
+   <?php
+                try{
+                    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
+                    foreach ($stmt as $row) {
+                    echo "<input class='form-control mt-3' style='display:none' required name='ID' id='userFormID3' value ='".$row['id_klienta']."'>";
+                    }
+                } catch(PDOException $e) {
+                    echo '😵';
+                }
+                ?>
+        <input class='form-control mt-3' required type='password' maxlength='64' name='oldpwd' id='userFormOldPwd' placeholder='Stare hasło'>
+        <input class='form-control mt-3' required type='password' maxlength='64' name='newpwd' id='userFormNewPwd' placeholder='Nowe hasło'>
+        <button id="confirmpwd" name="editpwd" type="submit" class="btn btn-primary mt-3"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                            </svg>Zapisz zmiany
+              </button>
+</form>
+        </div>
+        <br>
+        <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#czyusunac">
+  Chcę usunąć konto
+</button>
+<div class="modal fade" id="czyusunac" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Usuwanie konta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Czy na pewno chcesz usunąć swoje konto? <strong>"na zawsze" to bardzo długo!</strong>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <form method="post">
+     <?php
+                try{
+                    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
+                    foreach ($stmt as $row) {
+                    echo "<input class='form-control mt-3' style='display:none' required name='ID' id='userFormID2' value ='".$row['id_klienta']."'>";
+                    }
+                } catch(PDOException $e) {
+                    echo '😵';
+                }
+                ?>
+        <button id="confirmRemove" name="remove" type="submit" class="btn btn-primary">Usuń</button>
+    </form>
+      </div>
+    </div>
+  </div>
+</div>
+        
+                 </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
             </div>
         </div>
     </div>
@@ -412,11 +515,22 @@ if(isset($_POST['edit'])){
     </div>
 </div>
 
-    <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
+                <?php
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $stmt = $pdo->query('SELECT id_klienta, admin FROM klienci WHERE id_klienta = '.$_SESSION['user']);
+                    foreach($stmt as $row){
+                        if($row['admin'] == 1){
+                            echo '<a id="backroomsbutton" class="mt-3 btn btn-primary" href="../../backrooms">Jako admin przejdź "na zaplecze"</a>';
+                        }
+                    }
+                    $stmt -> closeCursor();
+                ?>
+
+  <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
 </div>
 <script>
     var title = document.getElementById("gridtitle");
-    var names = ["Edycja klienta","Historia transakcji","Koszyk"];
+    var names = ["Ustawienia konta","Historia transakcji","Koszyk"];
     var elements = document.getElementsByClassName("big-btn");
     var rozwijane_kolumny = document.getElementsByClassName("rozwijane_kolumny");
     var wyswietlane_kolumny = document.getElementsByClassName("wyswietlane_kolumny");
