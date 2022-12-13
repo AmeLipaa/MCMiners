@@ -331,6 +331,11 @@ if(isset($_POST['editpwd'])){
             <path d="M5.929 1.757a.5.5 0 1 0-.858-.514L2.217 6H.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h.623l1.844 6.456A.75.75 0 0 0 3.69 15h8.622a.75.75 0 0 0 .722-.544L14.877 8h.623a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1.717L10.93 1.243a.5.5 0 1 0-.858.514L12.617 6H3.383L5.93 1.757zM4 10a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm3 0a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm4-1a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1z"/>
         </svg>
         </a>
+        <a class="big-btn box-shadow" data-bs-toggle='modal' data-bs-target='#checkPromoModal'>
+        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-gift" viewBox="0 0 16 16">
+            <path d="M3 2.5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0v.006c0 .07 0 .27-.038.494H15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 14.5V7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h2.038A2.968 2.968 0 0 1 3 2.506V2.5zm1.068.5H7v-.5a1.5 1.5 0 1 0-3 0c0 .085.002.274.045.43a.522.522 0 0 0 .023.07zM9 3h2.932a.56.56 0 0 0 .023-.07c.043-.156.045-.345.045-.43a1.5 1.5 0 0 0-3 0V3zM1 4v2h6V4H1zm8 0v2h6V4H9zm5 3H9v8h4.5a.5.5 0 0 0 .5-.5V7zm-7 8V7H2v7.5a.5.5 0 0 0 .5.5H7z"/>
+        </svg>
+        </a>
             </div>
             <div class="modal fade" id="userForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -526,11 +531,64 @@ if(isset($_POST['editpwd'])){
                     $stmt -> closeCursor();
                 ?>
 
+    <!-- MODAL -->
+    <div class="modal fade" id="checkPromoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Sprawdź kod promocyjny</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post">
+                    <div class="modal-body">
+                        <?php
+                        $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                        if(isset($_POST["checkpromocode"])){
+                            $today = date('Y-m-d');
+                            if(!empty($_POST['kod'])){
+                                try{
+                                    $stmt = $pdo->query('SELECT * FROM promocje WHERE kod LIKE "'.$_POST['kod'].'";');
+                                    foreach($stmt as $row){
+                                        if(strtotime($row['od_kiedy']) <= strtotime($today) && strtotime($row['do_kiedy']) >= strtotime($today)){
+                                            echo "<h3>".$row['nazwa']."</h3>";
+                                            echo "<h3>Zniżka - ".$row['znizka']."%</h3>";
+                                            echo "<h4>Aktywny do ".$row['do_kiedy']."</h4>";
+                                            if($row['czy_limitowany'] == 1){
+                                                echo "<h4>Pozostało ".$row['ilosc']." użyć</h4>";
+                                            }
+                                        } else {
+                                            echo "</h3>Kod nieaktualny</h3>";
+                                        }
+                                    }
+                                } catch(PDOException $e) {
+                                    echo "</h3>Błędny kod</h3>";
+                                }
+                            }
+                            $stmt -> closeCursor();
+                        }
+                        ?>
+                        <input class="form-control mt-3" type="text" maxlength="16" name="kod" id="promokod" placeholder="Kod" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                        <button id="checkcode" name="checkpromocode" type="submit" class="btn btn-primary" style="display:block">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                            </svg>
+                            Sprawdź
+                        </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+
   <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
 </div>
 <script>
     var title = document.getElementById("gridtitle");
-    var names = ["Ustawienia konta","Historia transakcji","Koszyk"];
+    var names = ["Ustawienia konta","Historia transakcji","Koszyk","Sprawdź kod promocyjny"];
     var elements = document.getElementsByClassName("big-btn");
     var rozwijane_kolumny = document.getElementsByClassName("rozwijane_kolumny");
     var wyswietlane_kolumny = document.getElementsByClassName("wyswietlane_kolumny");
