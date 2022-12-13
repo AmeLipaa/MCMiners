@@ -87,23 +87,23 @@ try{
     <link href="https://fonts.googleapis.com/css2?family=Mukta&family=Nunito:wght@200;300;400&family=Work+Sans&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
-    <script> 
+    <script>
 
-$(document).ready(function(){
+        $(document).ready(function(){
 
-$(".rozwijane_kolumny").hide();
+            $(".rozwijane_kolumny").hide();
 
-$(".wyswietlane_kolumny").click(function(){
-    var index = $(".wyswietlane_kolumny").index(this);
-    $(".rozwijane_kolumny").eq(index).show("slow");
-});
-    
-$(".wyswietlane_kolumny").dblclick(function(){
-    var index = $(".wyswietlane_kolumny").index(this);
-    $(".rozwijane_kolumny").eq(index).hide("slow");
-});
-});
-</script>
+            $(".wyswietlane_kolumny").click(function(){
+                var index = $(".wyswietlane_kolumny").index(this);
+                $(".rozwijane_kolumny").eq(index).show("slow");
+            });
+
+            $(".wyswietlane_kolumny").dblclick(function(){
+                var index = $(".wyswietlane_kolumny").index(this);
+                $(".rozwijane_kolumny").eq(index).hide("slow");
+            });
+        });
+    </script>
 
     <style>
         body{
@@ -298,7 +298,7 @@ $(".wyswietlane_kolumny").dblclick(function(){
 
     <div class="searchpanel">
         <form method="post">
-            <input maxlength="48" placeholder="" name="which-order">
+            <input type="number" min="1" step="1" placeholder="Numer zamówienia" name="which-order">
             <button class="btn btn-outline-primary" type="submit" name="search">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
@@ -306,175 +306,80 @@ $(".wyswietlane_kolumny").dblclick(function(){
                 Szukaj
             </button>
         </form>
-        <button class="btn btn-outline-primary" onclick="addingMode()" data-bs-toggle="modal" data-bs-target="#userForm">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-fill-add" viewBox="0 0 16 16">
-                <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0Zm-2-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                <path d="M2 13c0 1 1 1 1 1h5.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.544-3.393C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4Z"/>
-            </svg>
-            Dodaj
-        </button>
     </div>
 
     <div class="row">
         <div class="d-none d-lg-block col-lg-2"></div>
         <div class="col-12 col-lg-8">
-        <?php
-                try{
-                    
-                    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
-                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                    if (isset($_POST['search'])) {
-                        $whichorder = $_POST['which-order'];
-                    }
+            <?php
+            try{
 
-                    if(!empty($whichorder)){
-                        $stmt = $pdo->query('SELECT * FROM transakcja WHERE id_transakcji LIKE "'.$whichorder.'%";');
-                        $stmt2 = $pdo->query('SELECT * FROM szczegoly_transakcji inner join transakcja on szczegoly_transakcji.id_transakcji=transakcja.id_transakcji inner join produkty on szczegoly_transakcji.id_produktu = produkty.id_produktu WHERE szczegoly_transakcji.id_transakcji LIKE "'.$whichorder.'%";');
+                $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                if (isset($_POST['search'])) {
+                    $whichorder = $_POST['which-order'];
+                }
+
+                if(!empty($whichorder)){
+                    $stmt = $pdo->query('SELECT * FROM transakcja WHERE id_transakcji LIKE "'.$whichorder.'%";');
+                    $stmt2 = $pdo->query('SELECT * FROM szczegoly_transakcji inner join transakcja on szczegoly_transakcji.id_transakcji=transakcja.id_transakcji inner join produkty on szczegoly_transakcji.id_produktu = produkty.id_produktu WHERE szczegoly_transakcji.id_transakcji LIKE "'.$whichorder.'%";');
+                } else {
+                    $stmt = $pdo->query('SELECT * FROM transakcja;');
+                    $stmt2 = $pdo->query('SELECT * FROM szczegoly_transakcji inner join transakcja on szczegoly_transakcji.id_transakcji=transakcja.id_transakcji inner join produkty on szczegoly_transakcji.id_produktu = produkty.id_produktu ');
+                }
+                echo "<table><tr style='font-size: 120%'><th style=' width: 33%;'> Numer zamówienia </th>";
+                echo "<th style=' width: 33%;'> Data </th>";
+                echo "<th style=' width: 33%;'> Status</th>";
+                echo "</tr>";
+                echo "</table>";
+                foreach ($stmt as $row) {
+                    echo "<table><tr class='wyswietlane_kolumny' style='border: 3px solid;  font-size: 120%'><td >".$row['id_transakcji']."</td>";
+                    echo "<td>".$row['data']."</td>";
+                    echo "<td>";
+                    if($row['realizacja']==1){
+                        echo "Zrealizowano";
                     } else {
-                        $stmt = $pdo->query('SELECT * FROM transakcja;');
-                        $stmt2 = $pdo->query('SELECT * FROM szczegoly_transakcji inner join transakcja on szczegoly_transakcji.id_transakcji=transakcja.id_transakcji inner join produkty on szczegoly_transakcji.id_produktu = produkty.id_produktu ');
+                        echo "Nie zrealizowano";
                     }
-                    echo "<table><tr style='font-size: 120%'><th style=' width: 33%;'> Numer zamówienia </th>";
-                    echo "<th style=' width: 33%;'> Data </th>";
-                    echo "<th style=' width: 33%;'> Status</th>";
-                    echo "</tr>";
-                    echo "</table>";
-                    foreach ($stmt as $row) {
-                        echo "<table><tr class='wyswietlane_kolumny' style='border: 3px solid;  font-size: 120%'><td >".$row['id_transakcji']."</td>";
-                        echo "<td>".$row['data']."</td>";
-                        echo "<td>";
-                        if($row['realizacja']==1){
-                            echo "Zrealizowano";
-                        } else {
-                            echo "Nie zrealizowano";
-                        }
-                        $stmt3 = $pdo->query('select produkty.nazwa, produkty.cena, szczegoly_transakcji.ilosc from produkty inner join szczegoly_transakcji on produkty.id_produktu=szczegoly_transakcji.id_produktu inner join transakcja on szczegoly_transakcji.id_transakcji = transakcja.id_transakcji where szczegoly_transakcji.id_transakcji LIKE "'.$row['id_transakcji'].'"');    
-                        echo "</td></tr></table>";
-                        echo "<table class='rozwijane_kolumny' style=' border: 1px solid; border-color: gray;><tr style=' width: 100%;'><th>Produkt</th>";
-                        echo "<th>Cena</th>";
-                        echo "<th>Ilość</th></tr>";
-                        $razem = 0.0;
-                        foreach ($stmt3 as $row) {
+                    $stmt3 = $pdo->query('select produkty.nazwa, produkty.cena, szczegoly_transakcji.ilosc from produkty inner join szczegoly_transakcji on produkty.id_produktu=szczegoly_transakcji.id_produktu inner join transakcja on szczegoly_transakcji.id_transakcji = transakcja.id_transakcji where szczegoly_transakcji.id_transakcji LIKE "'.$row['id_transakcji'].'"');
+                    echo "</td></tr></table>";
+                    echo "<table class='rozwijane_kolumny' style=' border: 1px solid; border-color: gray;><tr style=' width: 100%;'><th>Produkt</th>";
+                    echo "<th>Cena</th>";
+                    echo "<th>Ilość</th></tr>";
+                    $razem = 0.0;
+                    foreach ($stmt3 as $row) {
                         echo "<tr style=' width: 100%;'><td>".$row['nazwa']."</td>";
                         echo "<td>".$row['cena']." zł</td>";
                         echo "<td>".$row['ilosc']."</td>";
                         $razem += $row['cena'] * $row['ilosc'];
                         echo "</tr>";
                     }
-                        
-                        echo "<tr style='border: 1px solid; border-color: green; border-radius: 25px;'>";
-                        echo "<td></td>";
-                        echo" <td style='text-align: right'>Wartość zamówienia: ";
-                        echo "<td>" .$razem." zł</td>";
-                        echo "</tr>";
-                     echo "</table>";
-                }
-                
-                    $stmt->closeCursor();
-                } catch(PDOException $e) {
-                    echo '😵';
+
+                    echo "<tr style='border: 1px solid; border-color: green; border-radius: 25px;'>";
+                    echo "<td></td>";
+                    echo" <td style='text-align: right'>Wartość zamówienia: ";
+                    echo "<td>" .$razem." zł</td>";
+                    echo "</tr>";
+                    echo "</table>";
                 }
 
-                ?>
-            
-            
+                $stmt->closeCursor();
+            } catch(PDOException $e) {
+                echo '😵';
+            }
+
+            ?>
+
+
         </div>
         <div class="col-md-none col-lg-2"></div>
     </div>
 
-    <!-- MODAL -->
-    <div class="modal fade" id="userForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Dodawanie klienta</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post">
-                    <div class="modal-body">
-                        <input value="" disabled="true" name="ID" id="userFormID" style="display:none">
-                        <input class="form-control mt-3" type="text" maxlength="48" name="nick" id="userFormNick" placeholder="Nick" required>
-                        <input class="form-control mt-3" type="email" maxlength="75" name="email" id="userFormEmail" placeholder="E-mail" required>
-                        <input class="form-control mt-3" type="password" name="pwd" id="userFormPwd" maxlength="30" placeholder="Hasło" required>
-                        <input class="mt-3" type="checkbox" name="status" id="userFormAdmin" checked="false">
-                        Admin
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                        <button id="confirmAddNew" name="add" type="submit" class="btn btn-primary" style="display:block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                            </svg>
-                            Dodaj
-                        </button>
-                        <button id="confirmRemove" name="remove" type="submit" class="btn btn-primary" style="display:none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                                <path d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm2.121.707a1 1 0 0 0-1.414 0L4.16 7.547l5.293 5.293 4.633-4.633a1 1 0 0 0 0-1.414l-3.879-3.879zM8.746 13.547 3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z"/>
-                            </svg>
-                            Usuń
-                        </button>
-                        <button id="confirmEdit" name="edit" type="submit" class="btn btn-primary" style="display:none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                            </svg>
-                            Zapisz
-                        </button>
-                </form>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
 </div>
-<script>
-    var title = document.getElementById("modalTitle");
-    var ID = document.getElementById("userFormID");
-    var Nick = document.getElementById("userFormNick");
-    var Email = document.getElementById("userFormEmail");
-    var Pwd = document.getElementById("userFormPwd");
-    var isAdmin = document.getElementById("userFormAdmin");
-    var addbutton = document.getElementById("confirmAddNew");
-    var editbutton = document.getElementById("confirmEdit");
-    var deletebutton = document.getElementById("confirmRemove");
-    function addingMode(){
-        title.innerText = "Dodawanie klienta";
-        addbutton.style.display = "block";
-        editbutton.style.display = "none";
-        deletebutton.style.display = "none";
-        ID.value = "";
-        ID.disabled = true;
-        Nick.value = "";
-        Email.value = "";
-        Pwd.disabled = false;
-        Pwd.value = "";
-        isAdmin.checked = false;
-    }
-    function edit(id){
-        title.innerText = "Edycja klienta";
-        addbutton.style.display = "none";
-        ID.value = id;
-        ID.disabled = false;
-        Nick.value = document.getElementById("user" + id).children[2].innerText;
-        Email.value = document.getElementById("user" + id).children[3].innerText;
-        Pwd.disabled = true;
-        Pwd.value = "N/A";
-        if(document.getElementById("user" + id).children[4].innerText == "Admin"){
-            isAdmin.checked = true;
-            deletebutton.style.display = "none";
-        } else {
-            isAdmin.checked = false;
-            deletebutton.style.display = "block";
-        }
-        if(document.getElementById("user" + id).children[3].innerText == "NULL"){
-            editbutton.style.display = "none";
-            deletebutton.style.display = "none";
-        } else {
-            editbutton.style.display = "block";
-        }
-    }
-    
-</script>
+
+<div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
+</div>
 
 <script src="../resources/scroll.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
