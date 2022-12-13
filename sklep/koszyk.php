@@ -46,36 +46,37 @@ if (isset($_POST['zakup'])){
         $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        if(isset($_POST['kodpromo'])){
-            $stmt = $pdo->query('SELECT * FROM promocje WHERE kod LIKE "'.$_POST['kodpromo'].'";');
-            foreach($stmt as $row){
-                if($row['czy_limitowany'] == 1){
-                    if($row['ilosc'] > 0 && strtotime($row['od_kiedy']) <= strtotime($data) && strtotime($row['do_kiedy']) >= strtotime($data)){
-                        if($row['znizka'] != 100){
-                            $promocode = 1 - ($row['znizka'] / 100);
+        $klient = $_SESSION['user'];
+        if ($goforit == true) {
+            if(isset($_POST['kodpromo'])){
+                $stmt = $pdo->query('SELECT * FROM promocje WHERE kod LIKE "'.$_POST['kodpromo'].'";');
+                foreach($stmt as $row){
+                    if($row['czy_limitowany'] == 1){
+                        if($row['ilosc'] > 0 && strtotime($row['od_kiedy']) <= strtotime($data) && strtotime($row['do_kiedy']) >= strtotime($data)){
+                            if($row['znizka'] != 100){
+                                $promocode = 1 - ($row['znizka'] / 100);
+                            } else {
+                                $promocode = 0;
+                            }
+                            $newamount = $row['ilosc'] - 1;
+                            $stmt = $pdo->exec('UPDATE promocje SET ilosc = '. $newamount .' WHERE kod LIKE "'.$_POST['kodpromo'].'";');
                         } else {
-                            $promocode = 0;
-                        }
-                        $newamount = $row['ilosc'] - 1;
-                        $stmt = $pdo->exec('UPDATE promocje SET ilosc = '. $newamount .' WHERE kod LIKE "'.$_POST['kodpromo'].'";');
-                    } else {
-                        $promocode = 1;
-                    }
-                } else {
-                    if(strtotime($row['od_kiedy']) <= strtotime($data) && strtotime($row['do_kiedy']) >= strtotime($data)){
-                        if($row['znizka'] != 100){
-                            $promocode = ($row['znizka'] / 100);
-                        } else {
-                            $promocode = 0;
+                            $promocode = 1;
                         }
                     } else {
-                        $promocode = 1;
+                        if(strtotime($row['od_kiedy']) <= strtotime($data) && strtotime($row['do_kiedy']) >= strtotime($data)){
+                            if($row['znizka'] != 100){
+                                $promocode = 1 - ($row['znizka'] / 100);
+                            } else {
+                                $promocode = 0;
+                            }
+                        } else {
+                            $promocode = 1;
+                        }
                     }
                 }
             }
-        }
-        $klient = $_SESSION['user'];
-        if ($goforit == true) {
+
             $stmt = $pdo->exec('INSERT INTO transakcja (`id_klienta`, `data`, `realizacja`) VALUES ( ' . $klient . ',"' . $data . '",1)');
             $last_id = $pdo->lastInsertId();
             foreach($_SESSION['produkty'] as $key => $val){
@@ -324,10 +325,10 @@ if (isset($_POST['zakup'])){
                 <th class="d-none d-md-table-cell">
                     Obraz
                 </th>
-				<th> Nazwa produktu </th>
-				<th> Cena (łącznie)</th>
-				<th> Ilość </th>
-				<th></th>';
+        <th> Nazwa produktu </th>
+        <th> Cena (łącznie)</th>
+        <th> Ilość </th>
+        <th></th>';
 
                 foreach ($_SESSION['produkty'] as $key => $val) {
                     $stmt = $pdo->query('SELECT nazwa, obraz FROM produkty WHERE id_produktu LIKE "'.$val.'"');
