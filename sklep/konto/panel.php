@@ -13,64 +13,66 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 if(!isset($_SESSION['user'])){
     header('location:index.php');
 }
+
 if(isset($_POST['edit'])){
     $userid = $_SESSION['user'];
     $nick = $_POST['nick'];
     $email = $_POST['email'];
-    $switcharoo = false;
+    $ban = false;
     if(!empty($nick) && !empty($email)){
-		
-		$stmt1 = $pdo->query('SELECT * FROM klienci WHERE id_klienta = '.$userid);
-		foreach ($stmt1 as $row) {
-			$stmtdos = $pdo -> query('SELECT nick, email FROM klienci');
-            foreach ($stmtdos as $rowdos){
-                if($rowdos['id_klienta'] != $userid){
-                    if($rowdos['email'] == $email || $rowdos['nick'] == $nick){
-                        $switcharoo = true;
-                    }
+        $stmt = $pdo->query('SELECT * FROM klienci;');
+        foreach ($stmt as $row) {
+            if($row['id_klienta'] != $userid){
+                if($row['email'] == $email || $row['nick'] == $nick){
+                     $ban = true;
                 }
-            }
-            if($switcharoo == false){
-                $stmt = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'" WHERE `id_klienta` LIKE '.$userid);
-            }
-		}
-		
-		
-       
+            }    
+        }
+        if($ban == false){
+            $stmtuno = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'" WHERE `id_klienta` LIKE '.$userid);
+        }
     }
     header('location:panel.php');
-	$stmt1->closeCursor();
-
+    $stmtuno->closeCursor();
+    $stmt->closeCursor();
 }
 if(isset($_POST['remove'])){
-    $userid = $_POST['ID'];
+    $userid = $_SESSION['user'];
     if(!empty($userid)){
-        $stmt = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'", `admin` = "'.$admin.'" WHERE `id_klienta` LIKE '.$userid); // Usuwanie nie powinno całkowicie wymazywać użytkownika z bazy danych bo musi zostać w historii tranzakcji
+        $stmt = $pdo->query('SELECT id_klienta FROM transakcja WHERE id_klienta = '.$userid);
+        if($stmt->rowCount() == 0){
+            $stmt->closeCursor();
+            $stmt = $pdo -> exec('DELETE FROM klienci WHERE `id_klienta` = '.$userid);
+        } else {
+            $stmt->closeCursor();
+            $stmt = $pdo->exec('UPDATE klienci SET `email` = "NULL", `haslo` = "NULL" WHERE `id_klienta` = '.$userid); // Usuwanie nie powinno całkowicie wymazywać użytkownika z bazy danych bo musi zostać w historii tranzakcji
+        }
     }
-	   session_unset();
+    $stmt -> closeCursor();
+    session_unset();
     session_destroy();
     header('location:panel.php');
-
-
 }
 if(isset($_POST['editpwd'])){
-	$oldpwd=$_POST['oldpwd'];
-	$newpwd=$_POST['newpwd'];
-    if(!empty($userid)){
-		$stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta ='.$_SESSION['user']);
-		foreach ($stmt as $row) {
-			$checkpwd = hash('whirlpool',$oldpwd);
+    $userid = $_SESSION['user'];
+    $oldpwd=$_POST['oldpwd'];
+    $newpwd=$_POST['newpwd'];
+
+    if(!empty($userid) && !empty($oldpwd) && !empty($newpwd)){
+        $stmt = $pdo->query('SELECT * FROM klienci WHERE id_klienta = '.$userid);
+        $checkpwd = hash('whirlpool',$oldpwd);
+        foreach ($stmt as $row) {
             if($checkpwd == $row['haslo']){
-				$hashpwd = hash('whirlpool',$newpwd);
-				$stmt2 = $pdo->exec('UPDATE klienci SET `haslo` = "'.$hashpwd.'" WHERE `id_klienta` LIKE '.$_SESSION['user']); 
-			}
-			else{
-				echo'Niepoprawne hasło.';
-			}
-		}
-	}
-	 header('location:panel.php');
-$stmt->closeCursor();
+                $hashpwd = hash('whirlpool',$newpwd);
+                $stmt -> closeCursor();
+                $stmt = $pdo->exec('UPDATE klienci SET `haslo` = "'.$hashpwd.'" WHERE `id_klienta` = '.$userid); 
+            } else {
+                echo'Niepoprawne hasło.';
+            }
+        }
+    }
+   header('location:panel.php');
+    $stmt->closeCursor();
 }
 ?>
 <!DOCTYPE html>
@@ -90,18 +92,18 @@ $stmt->closeCursor();
 
 <script> 
 
-	$(document).ready(function(){
-	
-	$(".rozwijane_kolumny").hide();
+  $(document).ready(function(){
+  
+  $(".rozwijane_kolumny").hide();
 
     $(".wyswietlane_kolumny").click(function(){
-		var index = $(".wyswietlane_kolumny").index(this);
-		$(".rozwijane_kolumny").eq(index).show("slow");
+    var index = $(".wyswietlane_kolumny").index(this);
+    $(".rozwijane_kolumny").eq(index).show("slow");
     });
-		
+    
     $(".wyswietlane_kolumny").dblclick(function(){
-		var index = $(".wyswietlane_kolumny").index(this);
-		$(".rozwijane_kolumny").eq(index).hide("slow");
+    var index = $(".wyswietlane_kolumny").index(this);
+    $(".rozwijane_kolumny").eq(index).hide("slow");
     });
 });
 </script>
@@ -268,6 +270,12 @@ $stmt->closeCursor();
             color: #00FF7F;
             transition: 0.3s;
         }
+        #backroomsbutton {
+            margin: auto;
+            display: block;
+            width: 25%;
+            min-width: fit-content;
+        }
     </style>
 </head>
 <body data-bs-spy="scroll" data-bs-target="#navigacja">
@@ -323,6 +331,11 @@ $stmt->closeCursor();
             <path d="M5.929 1.757a.5.5 0 1 0-.858-.514L2.217 6H.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h.623l1.844 6.456A.75.75 0 0 0 3.69 15h8.622a.75.75 0 0 0 .722-.544L14.877 8h.623a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1.717L10.93 1.243a.5.5 0 1 0-.858.514L12.617 6H3.383L5.93 1.757zM4 10a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm3 0a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm4-1a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1z"/>
         </svg>
         </a>
+        <a class="big-btn box-shadow" data-bs-toggle='modal' data-bs-target='#checkPromoModal'>
+        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-basket2-fill" viewBox="0 0 16 16">
+            <path d="M5.929 1.757a.5.5 0 1 0-.858-.514L2.217 6H.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h.623l1.844 6.456A.75.75 0 0 0 3.69 15h8.622a.75.75 0 0 0 .722-.544L14.877 8h.623a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1.717L10.93 1.243a.5.5 0 1 0-.858.514L12.617 6H3.383L5.93 1.757zM4 10a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm3 0a1 1 0 0 1 2 0v2a1 1 0 1 1-2 0v-2zm4-1a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1z"/>
+        </svg>
+        </a>
             </div>
             <div class="modal fade" id="userForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -333,10 +346,10 @@ $stmt->closeCursor();
                 </div>
                
                     <div class="modal-body">
-					<button class="btn btn-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#nickemailzmiana" aria-expanded="false" aria-controls="collapseExample">
+          <button class="btn btn-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#nickemailzmiana" aria-expanded="false" aria-controls="collapseExample">
     Zmień nick lub e-mail</button>
-	<div class="collapse" id="nickemailzmiana">
-	 <form method="post">
+  <div class="collapse" id="nickemailzmiana">
+   <form method="post">
                     <?php
                 try{
                     $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -351,8 +364,8 @@ $stmt->closeCursor();
                     echo '😵';
                 }
                 ?>
-				
-				 
+        
+         
                         <?php
                 try{
                     $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
@@ -369,16 +382,16 @@ $stmt->closeCursor();
                             </svg>
                             Zapisz
                         </button>
-				
-				  </form>
-				</div>
-				<br>
+        
+          </form>
+        </div>
+        <br>
 <button class="btn btn-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#zmianapwd" aria-expanded="false" aria-controls="collapseExample">
     Zmień hasło</button>
-	<div class="collapse" id="zmianapwd">
-	
-	<form method="post">
-	 <?php
+  <div class="collapse" id="zmianapwd">
+  
+  <form method="post">
+   <?php
                 try{
                     $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -390,16 +403,16 @@ $stmt->closeCursor();
                     echo '😵';
                 }
                 ?>
-				<input class='form-control mt-3' required type='password' maxlength='64' name='oldpwd' id='userFormOldPwd' placeholder='Stare hasło'>
-				<input class='form-control mt-3' required type='password' maxlength='64' name='newpwd' id='userFormNewPwd' placeholder='Nowe hasło'>
-				<button id="confirmpwd" name="editpwd" type="submit" class="btn btn-primary mt-3"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+        <input class='form-control mt-3' required type='password' maxlength='64' name='oldpwd' id='userFormOldPwd' placeholder='Stare hasło'>
+        <input class='form-control mt-3' required type='password' maxlength='64' name='newpwd' id='userFormNewPwd' placeholder='Nowe hasło'>
+        <button id="confirmpwd" name="editpwd" type="submit" class="btn btn-primary mt-3"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
                             </svg>Zapisz zmiany
-							</button>
+              </button>
 </form>
-				</div>
-				<br>
-				<button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#czyusunac">
+        </div>
+        <br>
+        <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#czyusunac">
   Chcę usunąć konto
 </button>
 <div class="modal fade" id="czyusunac" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -414,8 +427,8 @@ $stmt->closeCursor();
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-		<form method="post">
-	   <?php
+    <form method="post">
+     <?php
                 try{
                     $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -428,18 +441,15 @@ $stmt->closeCursor();
                 }
                 ?>
         <button id="confirmRemove" name="remove" type="submit" class="btn btn-primary">Usuń</button>
-		</form>
+    </form>
       </div>
     </div>
   </div>
 </div>
-				
+        
                  </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
-                      
-	
-              
             </div>
         </div>
     </div>
@@ -510,11 +520,75 @@ $stmt->closeCursor();
     </div>
 </div>
 
-    <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
+                <?php
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $stmt = $pdo->query('SELECT id_klienta, admin FROM klienci WHERE id_klienta = '.$_SESSION['user']);
+                    foreach($stmt as $row){
+                        if($row['admin'] == 1){
+                            echo '<a id="backroomsbutton" class="mt-3 btn btn-primary" href="../../backrooms">Jako admin przejdź "na zaplecze"</a>';
+                        }
+                    }
+                    $stmt -> closeCursor();
+                ?>
+
+    <!-- MODAL -->
+    <div class="modal fade" id="checkPromoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Sprawdź kod promocyjny</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post">
+                    <div class="modal-body">
+                        <?php
+                        $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                        if(isset($_POST["checkpromocode"])){
+                            $today = date('Y-m-d');
+                            if(!empty($_POST['kod'])){
+                                try{
+                                    $stmt = $pdo->query('SELECT * FROM promocje WHERE kod LIKE "'.$_POST['kod'].'";');
+                                    foreach($stmt as $row){
+                                        if(strtotime($row['od_kiedy']) <= strtotime($today) && strtotime($row['do_kiedy']) >= strtotime($today)){
+                                            echo "<h3>".$row['nazwa']."</h3>";
+                                            echo "<h3>Zniżka - ".$row['znizka']."%</h3>";
+                                            echo "<h4>Aktywny do ".$row['do_kiedy']."</h4>";
+                                            if($row['czy_limitowany'] == 1){
+                                                echo "<h4>Pozostało ".$row['ilosc']." użyć</h4>";
+                                            }
+                                        } else {
+                                            echo "</h3>Kod nieaktualny</h3>";
+                                        }
+                                    }
+                                } catch(PDOException $e) {
+                                    echo "</h3>Błędny kod</h3>";
+                                }
+                            }
+                            $stmt -> closeCursor();
+                        }
+                        ?>
+                        <input class="form-control mt-3" type="text" maxlength="16" name="kod" id="promokod" placeholder="Kod" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                        <button id="checkcode" name="checkpromocode" type="submit" class="btn btn-primary" style="display:block">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                            </svg>
+                            Sprawdź
+                        </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+
+  <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
 </div>
 <script>
     var title = document.getElementById("gridtitle");
-    var names = ["Ustawienia konta","Historia transakcji","Koszyk"];
+    var names = ["Ustawienia konta","Historia transakcji","Koszyk","Sprawdź kod promocyjny"];
     var elements = document.getElementsByClassName("big-btn");
     var rozwijane_kolumny = document.getElementsByClassName("rozwijane_kolumny");
     var wyswietlane_kolumny = document.getElementsByClassName("wyswietlane_kolumny");
