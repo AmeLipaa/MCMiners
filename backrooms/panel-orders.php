@@ -342,7 +342,7 @@ try{
                     } else {
                         echo "Nie zrealizowano";
                     }
-                    $stmt3 = $pdo->query('select produkty.nazwa, produkty.cena, szczegoly_transakcji.ilosc from produkty inner join szczegoly_transakcji on produkty.id_produktu=szczegoly_transakcji.id_produktu inner join transakcja on szczegoly_transakcji.id_transakcji = transakcja.id_transakcji where szczegoly_transakcji.id_transakcji LIKE "'.$row['id_transakcji'].'"');
+                    $stmt3 = $pdo->query('select produkty.nazwa, szczegoly_transakcji.cena, szczegoly_transakcji.ilosc from produkty inner join szczegoly_transakcji on produkty.id_produktu=szczegoly_transakcji.id_produktu inner join transakcja on szczegoly_transakcji.id_transakcji = transakcja.id_transakcji where szczegoly_transakcji.id_transakcji LIKE "'.$row['id_transakcji'].'"');
                     echo "</td></tr></table>";
                     echo "<table class='rozwijane_kolumny' style=' border: 1px solid; border-color: gray;><tr style=' width: 100%;'><th>Produkt</th>";
                     echo "<th>Cena</th>";
