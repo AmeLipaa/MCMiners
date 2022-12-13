@@ -40,17 +40,47 @@ if (isset($_POST['zakup'])){
         }
     }
     try {
+        $promocode = 1;
         $x = 2;
+        $data = date("Y-m-d");
         $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+        if(isset($_POST['kodpromo'])){
+            $stmt = $pdo->query('SELECT * FROM promocje WHERE kod LIKE "'.$_POST['kodpromo'].'";');
+            foreach($stmt as $row){
+                if($row['czy_limitowany'] == 1){
+                    if($row['ilosc'] > 0 && strtotime($row['od_kiedy']) <= strtotime($data) && strtotime($row['do_kiedy']) >= strtotime($data)){
+                        if($row['znizka'] != 100){
+                            $promocode = 1 - ($row['znizka'] / 100);
+                        } else {
+                            $promocode = 0;
+                        }
+                        $newamount = $row['ilosc'] - 1;
+                        $stmt = $pdo->exec('UPDATE promocje SET ilosc = '. $newamount .' WHERE kod LIKE "'.$_POST['kodpromo'].'";');
+                    } else {
+                        $promocode = 1;
+                    }
+                } else {
+                    if(strtotime($row['od_kiedy']) <= strtotime($data) && strtotime($row['do_kiedy']) >= strtotime($data)){
+                        if($row['znizka'] != 100){
+                            $promocode = ($row['znizka'] / 100);
+                        } else {
+                            $promocode = 0;
+                        }
+                    } else {
+                        $promocode = 1;
+                    }
+                }
+            }
+        }
         $klient = $_SESSION['user'];
-        $data = date("Y-m-d");
         if ($goforit == true) {
             $stmt = $pdo->exec('INSERT INTO transakcja (`id_klienta`, `data`, `realizacja`) VALUES ( ' . $klient . ',"' . $data . '",1)');
             $last_id = $pdo->lastInsertId();
             foreach($_SESSION['produkty'] as $key => $val){
-                $stmt = $pdo->exec('INSERT INTO szczegoly_transakcji (`id_transakcji`, `id_produktu`, `ilosc`, `cena`) VALUES ( ' . $last_id . ',' . $val . ',' . $_SESSION['ilosci'][$key] . ',' . $_SESSION['ilosci'][$key]*$_SESSION['ceny'][$key] . ')');
+                $foo = ($_SESSION['ilosci'][$key]*$_SESSION['ceny'][$key]) * $promocode;
+                $stmt = $pdo->exec('INSERT INTO szczegoly_transakcji (`id_transakcji`, `id_produktu`, `ilosc`, `cena`) VALUES ( ' . $last_id . ',' . $val . ',' . $_SESSION['ilosci'][$key] . ',' . number_format((float)$foo, 2, '.', '') . ')');
             }
             unset($_SESSION['produkty']);
             unset($_SESSION['ilosci']);
@@ -360,10 +390,11 @@ if (isset($_POST['zakup'])){
                     <h3>Dane</h3>
                     <input class="form-control" type="text" maxlength="48" name="nick" id="userFormNick" placeholder="Nick" required>
                     <input class="form-control mt-3" type="email" maxlength="75" name="email" id="userFormEmail" placeholder="E-mail" required>
+                    <input class="form-control mt-3" type="text" maxlength="16" name="kodpromo" id="promocode" placeholder="Kod promocyjny (jeśli jest)">
                     <h3 class="mt-3">Płatność</h3>
                     <input class="form-control" type="text" maxlength="16" name="karta" id="pay1" placeholder="Nr karty" required>
                     <div style="display: inline-flex " >
-                        <input class="form-control m-3" type="month" name="wygasniecie" id="pay2" placeholder="Miesiąc wygaśnięcia" required>
+                        <input class="form-control m-3" type="text" maxlength="2" minlength="2" name="wygasniecie" id="pay2" placeholder="Miesiąc wygaśnięcia" required>
                         <input class="form-control m-3" type="text" maxlength="4" minlength="4" name="wygasniecie2" id="pay2" placeholder="Rok wygaśnięcia" required>
                     </div>
                     <input class="form-control" type="text" minlength="3" maxlength="3" name="ccv" id="pay3" placeholder="Numer CCV" required>
