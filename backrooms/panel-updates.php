@@ -36,6 +36,23 @@ try{
         }
         header('location:panel-updates.php');
     }
+    if(isset($_POST['edit'])){
+        $updateid = $_POST['ID'];
+        $title = str_replace("'", "''", $_POST['title']); //dla bezpieczeństwa zamienia pojedyncze apostrofy na podwójne
+        $text = str_replace("'", "''", $_POST['text']);
+        $data = $_POST['date'];
+        $author = $_SESSION['user'];
+        if(!empty($title) && !empty($text) && !empty($data)){
+            $stmt = $pdo->exec('UPDATE wpisy SET `id_klienta` = '.$author.', `tytul` = "'.$title.'", `tresc` = "'.$text.'", `data` = "'.$data.'" WHERE `id_wpisu` =  '.$updateid);
+        }
+        header('location:panel-updates.php');
+    } elseif(isset($_POST['remove'])){
+        $updateid = $_POST['ID'];
+        if(!empty($updateid)){
+            $stmt = $pdo -> exec('DELETE FROM wpisy WHERE `id_wpisu` = '.$updateid);
+        }
+        header('location:panel-updates.php');
+    }
 
 } catch(PDOException $e) {
     echo '😵';
@@ -159,6 +176,40 @@ try{
             text-align: center;
             display: block;
         }
+        .searchpanel{
+            margin: auto;
+            display: block;
+            width: 90%;
+            text-align: center;
+        }
+        .searchpanel input{
+            min-width: 150px;
+        }
+        .modal-header{
+            color: white;
+            background: repeat url("../resources/dirt.jpg");
+        }
+        .modal-body{
+            color: white;
+            background-color: #333;
+        }
+        .modal-footer{
+            background: repeat url("../resources/dirt.jpg");
+        }
+        table{
+            text-align: center;
+            width: 100%;
+            margin-top: 30px;
+        }
+        td{
+            min-width: fit-content;
+            width: 20%;
+        }
+        tr:hover{
+            background-color: #42445A;
+            color: #00FF7F;
+            transition: 0.3s;
+        }
     </style>
 
 </head>
@@ -225,8 +276,120 @@ try{
             </button>
     </form>
 
+    <div class="row">
+        <div class="col-md-12">
+            <div class="separator"></div>
+        </div>
+    </div>
+
+    <div class="searchpanel">
+        <form method="post">
+            <input maxlength="48" placeholder="Tytuł" name="which-update">
+            <button class="btn btn-outline-primary" type="submit" name="search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                </svg>
+                Szukaj
+            </button>
+        </form>
+    </div>
+
+    <div class="row">
+        <div class="d-none d-lg-block col-lg-2"></div>
+        <div class="col-12 col-lg-8">
+            <table>
+                <tr>
+                    <th>Autor</th>
+                    <th>Tytuł</th>
+                    <th>Data</th>
+                </tr>
+                <?php
+                try{
+                    $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                    if (isset($_POST['search'])) {
+                        $whichupdate = $_POST['which-update'];
+                    }
+
+                    if(!empty($whichupdate)){
+                        $stmt = $pdo->query('SELECT id_wpisu, nick, tytul,tresc, `data` FROM wpisy inner join klienci on wpisy.id_klienta=klienci.id_klienta WHERE tytul LIKE "'.$whichupdate.'%" or nick LIKE "'.$whichupdate.'%";');
+                    } else {
+                        $stmt = $pdo->query('SELECT id_wpisu, nick, tytul,tresc, `data` FROM wpisy inner join klienci on wpisy.id_klienta=klienci.id_klienta;');
+                    }
+                    foreach ($stmt as $row) {
+                        echo "<tr id='update" . $row['id_wpisu'] . "' onclick='edit(" . $row['id_wpisu'] . ")' data-bs-toggle='modal' data-bs-target='#updateForm'>";
+                        echo "<td>" . $row['nick'] . "</td>";
+                        echo "<td>" . $row['tytul'] . "</td>";
+                        echo "<td style='display:none'>" . $row['tresc'] . "</td>";
+                        echo "<td>" . $row['data'] . "</td>";
+                        echo "</tr>";
+                    }
+                    $stmt->closeCursor();
+                } catch(PDOException $e) {
+                    echo '😵';
+                }
+                ?>
+            </table>
+        </div>
+        <div class="col-md-none col-lg-2"></div>
+        <div class="modal fade" id="updateForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Edycja wpisu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post">
+                    <div class="modal-body">
+                        <input value="" type="hidden" name="ID" id="updateFormID">
+                        <input class="form-control mt-3" type="text" maxlength="48" name="title" id="updateFormAutor" placeholder="Tytuł" required>
+                        <input class="form-control mt-3" type="text" maxlength="48" name="author" id="updateFormTytul" placeholder="Autor" readonly>
+                        <textarea class="form-control mt-3" style="white-space:normal;" name="text" id="updateFormTresc" placeholder="Treść" required></textarea>
+                        <input class="form-control mt-3" type="date" name="date" id="updateFormDate" placeholder="Data" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                        <button id="confirmRemove" name="remove" type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                                <path d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm2.121.707a1 1 0 0 0-1.414 0L4.16 7.547l5.293 5.293 4.633-4.633a1 1 0 0 0 0-1.414l-3.879-3.879zM8.746 13.547 3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z"/>
+                            </svg>
+                            Usuń
+                        </button>
+                        <button id="confirmEdit" name="edit" type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                            </svg>
+                            Zapisz
+                        </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+
     <div style="text-align:center;color:white;">Wdrożenie - AM 2022</div>
 </div>
+<script>
+    var title = document.getElementById("modalTitle");
+    var ID = document.getElementById("updateFormID");
+    var Tytul = document.getElementById("updateFormTytul");
+    var Autor = document.getElementById("updateFormAutor");
+    var Tresc = document.getElementById("updateFormTresc");
+    var Data = document.getElementById("updateFormDate");
+    var editbutton = document.getElementById("confirmEdit");
+    var deletebutton = document.getElementById("confirmRemove");
+
+    function edit(id){
+        title.innerText = "Edycja wpisu";
+        ID.value = id;
+        Tytul.value = document.getElementById("update" + id).children[0].innerText;
+        Autor.value = document.getElementById("update" + id).children[1].innerText;
+        Tresc.value = document.getElementById("update" + id).children[2].innerText;
+        Data.value = document.getElementById("update" + id).children[3].innerText;
+    }
+
+</script>
 <script src="../resources/scroll.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
