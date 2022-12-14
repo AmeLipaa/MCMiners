@@ -58,6 +58,18 @@ Check();
             background-color:#00FF7F;
             color: black;
         }
+        .btn-outline-secondary{
+            color:black;
+            border-color:#444;
+            margin-left: 10px;
+            margin-right: 10px;
+            border-width: 2px;
+        }
+        .btn-outline-secondary:hover{
+            border-color:#00FF7F;
+            background-color:#00FF7F;
+            color: black;
+        }
         .navbar-dark .navbar-nav .nav-link{
             font-family: 'Nunito', sans-serif;
             font-size: 22px;
@@ -104,6 +116,7 @@ Check();
             text-align: center;
             margin: 0px auto 50px auto;
             display: block;
+            width: 150px;
         }
         .alert{
             margin-bottom: 0 !important;
@@ -114,6 +127,10 @@ Check();
         }
         a{
             text-decoration: none !important;
+
+        }
+        .h-captcha{
+            margin-top: 25px;
         }
         .animlogo {
             display: block;
@@ -194,7 +211,7 @@ Check();
         }
 
     </style>
-
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 <body data-bs-spy="scroll" data-bs-target="#navigacja">
 <?php
@@ -205,65 +222,91 @@ if (isset($_POST["signup"])) {
     $pwd = $_POST['pwd'];
     $pwd2 = $_POST['pwd2'];
 
-    try{
-        $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
 
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $stmt = $pdo->query('SELECT * FROM klienci');
-        $kontrolka=0;
-        foreach ($stmt as $row) {
+        // SECRET KEY
+        $secretKey = "XXX";
+        $responseToken = $_POST['h-captcha-response']; //USER RESPONSE
 
-            if($email == $row['email']){
-                $kontrolka++;
-                echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				<strong>Ten adres e-mail jest już w użyciu</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
+        $postData = http_build_query([
+            "secret" => $secretKey,
+            "response" => $responseToken
+        ]);
 
+        // REQUEST TO SERVER
+        $options = [
+            "http" => [
+                "header" => "Content-type: application/x-www-form-urlencoded\r\n",
+                "method" => "POST",
+                "content" => $postData
+            ]
+        ];
+        $context = stream_context_create($options);
+        $response = file_get_contents("https://hcaptcha.com/siteverify", false, $context);
+
+
+        $responseData = json_decode($response, true);
+        if ($responseData !== null && $responseData["success"]) {
+            try{
+                $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $stmt = $pdo->query('SELECT * FROM klienci');
+                $kontrolka=0;
+                foreach ($stmt as $row) {
+
+                    if($email == $row['email']){
+                        $kontrolka++;
+                        echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong>Ten adres e-mail jest już w użyciu</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>';
+
+                    }
+                    else if ($nick == $row['nick']){
+                        $kontrolka++;
+                        echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Ten nick jest już w użyciu</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
+                    }
+                }
+                $stmt->closeCursor();
+                if(strlen($pwd)<6 || strlen($pwd)>30){
+                    $kontrolka++;
+                    echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Hasło musi mieć od 6 do 30 znaków</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
+                }
+                else if ($pwd!=$pwd2){
+                    $kontrolka++;
+                    echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Podane hasła muszą być identyczne</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
+                }
+                else if($kontrolka==0){
+                    $checkpwd = hash('whirlpool',$pwd);
+                    $stmta = $pdo->query('INSERT INTO klienci(nick,email,haslo,admin) VALUES ("'.$nick.'","'.$email.'","'.$checkpwd.'",0);');
+                    echo '<div class="alert alert-success d-flex align-items-center" role="alert" id="jupi">
+              <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+              <div>
+                  Witaj na pokładzie, '.$nick.'!
+              </div>
+              <a href="." data-bs-target="_self" class="btn btn-outline-primary">Zaloguj się</a>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=window.location.href; return false;"></button>
+              </div>';
+                    $stmta->closeCursor();
+                }
+                Check();
+            } catch(PDOException $e) {
+                echo '??';
             }
-            else if ($nick == $row['nick']){
-                $kontrolka++;
-                echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				<strong>Ten nick jest już w użyciu</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
-            }
-
-        }
-        $stmt->closeCursor();
-
-        if(strlen($pwd)<6 || strlen($pwd)>30){
-            $kontrolka++;
+        } else {
             echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				<strong>Hasło musi mieć od 6 do 30 znaków</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
+            <strong>Musisz przejść Captchę</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
         }
-        else if ($pwd!=$pwd2){
-            $kontrolka++;
-            echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
-				<strong>Podane hasła muszą być identyczne</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-				</div>';
-        }
-        else if($kontrolka==0){
-            $checkpwd = hash('whirlpool',$pwd);
-            $stmta = $pdo->query('INSERT INTO klienci(nick,email,haslo,admin) VALUES ("'.$nick.'","'.$email.'","'.$checkpwd.'",0);');
-            echo '<div class="alert alert-success d-flex align-items-center" role="alert" id="jupi">
-					<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
-					<div>
-							Witaj na pokładzie, '.$nick.'!
-					</div>
-					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=window.location.href; return false;"></button>
-					</div>';
-            $stmta->closeCursor();
-        }
-
-
-        Check();
-    } catch(PDOException $e) {
-        echo '??';
-    }
 }
 ?>
 
@@ -293,11 +336,14 @@ if (isset($_POST["signup"])) {
                 <input class="mb-2" type="email" name="email" maxlength="75" placeholder="E-mail" required><br>
                 <input class="mb-2" type="password" name="pwd" maxlength="30" minlength="6" placeholder="Hasło" required><br>
                 <input class="mb-2" type="password" name="pwd2" maxlength="30" minlength="6" placeholder="Powtórz hasło" required><br>
+                <div class="h-captcha" data-sitekey="XXX"></div><br>
                 <button class="btn btn-primary" type="submit" name="signup">Zarejestruj się</button>
             </form>
-            <a href="."><button class="btn btn-secondary">Mam już konto</button></a>
+            <a href="." class="btn btn-secondary" data-bs-target="_self">Mam już konto</a>
         </div>
     </div>
+    <br>
+    <br>
 
     <footer>Wdrożenie - AM 2022</footer>
 </div>
