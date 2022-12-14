@@ -26,45 +26,23 @@ try{
     }
     $stmt->closeCursor();
 
-    if(isset($_POST['add'])){
-        $nick = $_POST['nick'];
-        $email = $_POST['email'];
-        $pwd = $_POST['pwd'];
-        if(isset($_POST['status'])){
-            $admin = 1;
-        } else {
-            $admin = 0;
+    if(isset($_POST['anulujzamow'])){
+        if(!empty($_POST['zamowid'])){
+            $stmt = $pdo->query('UPDATE transakcja SET realizacja = 2 WHERE id_transakcji = '.$_POST['zamowid']);
         }
-        if(!empty($nick) && !empty($email) && !empty($pwd)){
-            $stmt = $pdo->exec('INSERT INTO klienci (`nick`, `email`, `haslo`, `admin`) VALUES ( "'.$nick.'","'.$email.'","'.hash('whirlpool',$pwd).'",'.$admin.')');
+        header('location:panel-orders.php');
+    }
+    if(isset($_POST['niezrealizzamow'])){
+        if(!empty($_POST['zamowid'])){
+            $stmt = $pdo->query('UPDATE transakcja SET realizacja = 0 WHERE id_transakcji = '.$_POST['zamowid']);
         }
-        header('location:panel-users.php');
-    } elseif(isset($_POST['edit'])){
-        $userid = $_POST['ID'];
-        $nick = $_POST['nick'];
-        $email = $_POST['email'];
-        if(isset($_POST['status'])){
-            $admin = 1;
-        } else {
-            $admin = 0;
+        header('location:panel-orders.php');
+    }
+    if(isset($_POST['zrealizzamow'])){
+        if(!empty($_POST['zamowid'])){
+            $stmt = $pdo->query('UPDATE transakcja SET realizacja = 1 WHERE id_transakcji = '.$_POST['zamowid']);
         }
-        if(!empty($nick) && !empty($email) && !empty($userid)){
-            $stmt = $pdo->exec('UPDATE klienci SET `nick` = "'.$nick.'", `email` = "'.$email.'", `admin` = "'.$admin.'" WHERE `id_klienta` LIKE '.$userid);
-        }
-        header('location:panel-users.php');
-    } elseif(isset($_POST['remove'])){
-        $userid = $_POST['ID'];
-        if(!empty($userid)){
-            $stmt = $pdo->query('SELECT id_klienta FROM transakcja WHERE id_klienta = '.$userid);
-            if($stmt->rowCount() == 0){
-                $stmt->closeCursor();
-                $stmt = $pdo -> exec('DELETE FROM klienci WHERE `id_klienta` = '.$userid); // Jeśli klient nigdy niczego nie kupował to usuń go z bazy
-            } else {
-                $stmt->closeCursor();
-                $stmt = $pdo->exec('UPDATE klienci SET `email` = "NULL", `haslo` = "NULL" WHERE `id_klienta` = '.$userid); // Usuwanie nie powinno całkowicie wymazywać użytkownika z bazy danych bo musi zostać w historii tranzakcji
-            }
-        }
-        header('location:panel-users.php');
+        header('location:panel-orders.php');
     }
 
 } catch(PDOException $e) {
@@ -132,6 +110,9 @@ try{
             border-color:#00FF7F;
             background-color:#00FF7F;
             color: black;
+        }
+        .btn-anuluj{
+            background-color: lightcoral !important;
         }
         .navbar-dark .navbar-nav .nav-link{
             font-family: 'Nunito', sans-serif;
@@ -274,24 +255,7 @@ try{
 
     <div class="welcomediv">
         <?php
-        $time = date('H', time());
-        try{
-            $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-            $stmt = $pdo->query('SELECT nick FROM klienci WHERE id_klienta LIKE "'.$_SESSION['user'].'"');
-            foreach ($stmt as $row) {
-                if($time > 17 || $time < 5) {
-                    echo "<h1 class='welcome'>Dobry wieczór, " . $row['nick'] . "</h1>";
-                } else {
-                    echo "<h1 class='welcome'>Dzień dobry, " . $row['nick'] . "</h1>";
-                }
-                echo "<img src='https://minotar.net/helm/".$row['nick']."/100.png' class='welcome box-shadow' />";
-            }
-            $stmt->closeCursor();
-        } catch(PDOException $e) {
-            echo '😵';
-        }
+        include('welcome.php');
         ?>
     </div>
     <div class="separator"></div>
@@ -334,13 +298,19 @@ try{
                 echo "</tr>";
                 echo "</table>";
                 foreach ($stmt as $row) {
+                    $idzamow = $row['id_transakcji'];
                     echo "<table><tr class='wyswietlane_kolumny' style='border: 3px solid;  font-size: 120%'><td >".$row['id_transakcji']."</td>";
                     echo "<td>".$row['data']."</td>";
                     echo "<td>";
                     if($row['realizacja']==1){
                         echo "Zrealizowano";
-                    } else {
+                        $realiz = 1;
+                    } else if($row['realizacja']==0){
                         echo "Nie zrealizowano";
+                        $realiz = 0;
+                    } else {
+                        echo "Anulowano";
+                        $realiz = 1;
                     }
                     $stmt3 = $pdo->query('select produkty.nazwa, szczegoly_transakcji.cena, szczegoly_transakcji.ilosc from produkty inner join szczegoly_transakcji on produkty.id_produktu=szczegoly_transakcji.id_produktu inner join transakcja on szczegoly_transakcji.id_transakcji = transakcja.id_transakcji where szczegoly_transakcji.id_transakcji LIKE "'.$row['id_transakcji'].'"');
                     echo "</td></tr></table>";
@@ -356,11 +326,17 @@ try{
                         echo "</tr>";
                     }
 
-                    echo "<tr style='border: 1px solid; border-color: green; border-radius: 25px;'>";
-                    echo "<td></td>";
+                    echo "<tr style='border: 1px solid; border-color: green; border-radius: 25px;'><form method='post'>";
+                    if($realiz == 1){
+                        echo "<td><input type='hidden' name='zamowid' value='".$idzamow."'><button type='submit' class='btn btn-primary' name='niezrealizzamow'>Nie zrealizowano</button><button type='submit' class='btn btn-primary btn-anuluj' name='anulujzamow'>Anulowano</button></td>";
+                    } else if($realiz == 0) {
+                        echo "<td><input type='hidden' name='zamowid' value='".$idzamow."'><button type='submit' class='btn btn-primary' name='zrealizzamow'>Zrealizowano</button><button type='submit' class='btn btn-primary btn-anuluj' name='anulujzamow'>Anulowano</button></td>";
+                    } else {
+                        echo "<td><input type='hidden' name='zamowid' value='".$idzamow."'><button type='submit' class='btn btn-primary' name='zrealizzamow'>Zrealizowano</button></td>";
+                    }
                     echo" <td style='text-align: right'>Wartość zamówienia: ";
                     echo "<td>" .$razem." zł</td>";
-                    echo "</tr>";
+                    echo "</form></tr>";
                     echo "</table>";
                 }
 
