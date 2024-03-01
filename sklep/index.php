@@ -53,27 +53,29 @@ if(isset($_POST['add'])){
 					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=index.php; return false;"></button>
 					</div>';
 }
-if($_GET['x'] == 1){
-    echo '<div class="alert alert-success d-flex align-items-center" role="alert" id="jupi">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
-          <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5ZM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1Zm0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132Z"/>
-        </svg>
-        <div>
-                Zamówienie zostało złożone!
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=index.php; return false;"></button>
-        </div>';
-} else if($_GET['x'] == 2){
-    echo '<div class="alert alert-danger d-flex align-items-center" role="alert" id="jupi">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-question-octagon" viewBox="0 0 16 16">
-          <path d="M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353L4.54.146zM5.1 1 1 5.1v5.8L5.1 15h5.8l4.1-4.1V5.1L10.9 1H5.1z"/>
-          <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
-        </svg>
-        <div>
-                Wystąpił problem z twoim zamówieniem.
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=index.php; return false;"></button>
-        </div>';
+if(isset($_GET['x'])){
+    if($_GET['x'] == 1){
+        echo '<div class="alert alert-success d-flex align-items-center" role="alert" id="jupi">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
+              <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5ZM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1Zm0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132Z"/>
+            </svg>
+            <div>
+                    Zamówienie zostało złożone!
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=index.php; return false;"></button>
+            </div>';
+    } else if($_GET['x'] == 2){
+        echo '<div class="alert alert-danger d-flex align-items-center" role="alert" id="jupi">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-question-octagon" viewBox="0 0 16 16">
+              <path d="M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353L4.54.146zM5.1 1 1 5.1v5.8L5.1 15h5.8l4.1-4.1V5.1L10.9 1H5.1z"/>
+              <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+            </svg>
+            <div>
+                    Wystąpił problem z twoim zamówieniem.
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick="window.location.href=index.php; return false;"></button>
+            </div>';
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -369,13 +371,18 @@ if($_GET['x'] == 1){
                 $pdo = new PDO('mysql:host=' . $mysql_host . ';dbname=' . $database . ';port=' . $port, $username, $password);
                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 if (isset($_POST['filter'])) {
+                    $filter_cat = "";
+                    $filter_sort = "";
                     $whichprod = $_POST['which-product'];
-                    if($_POST['kat'] != 0) {
-                        $filter = " AND pid = " . $_POST['kat'] . $sortarr[$_POST['sort']];
-                    } else {
-                        $filter = $sortarr[$_POST['sort']];
+                    if(isset($_POST['kat'])){
+                        if($_POST['kat'] != 0) {
+                            $filter_cat = " AND pid = " . $_POST['kat'];
+                        }
                     }
-                    $stmt = $pdo->query('SELECT * FROM `Sklep` WHERE `pname` LIKE "'.$whichprod.'%"'.$filter.';');
+                    if(isset($_POST['sort'])){
+                        $filter_sort = $sortarr[$_POST['sort']];
+                    }
+                    $stmt = $pdo->query('SELECT * FROM `Sklep` WHERE `pname` LIKE "'.$whichprod.'%"'.$filter_cat . $filter_sort.';');
                 } else {
                     $stmt = $pdo->query('SELECT * FROM `Sklep`;');
                 }
